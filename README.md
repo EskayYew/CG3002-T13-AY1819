@@ -1,6 +1,6 @@
 # CG3002-T13-AY1819-Main
 
-##Key Deadlines
+## Key Deadlines
 
 | Week | Delivrable | Date | Individual % | Group % |
 |------|------------|------|--------------|---------|
