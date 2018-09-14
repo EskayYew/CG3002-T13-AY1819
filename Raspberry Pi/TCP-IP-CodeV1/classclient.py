@@ -26,7 +26,7 @@ class Communication:
         return base64.b64encode(iv + cipher.encrypt(text))
 
     def _pad(self, s):
-        return s + (self.bs - len(s) % self.bs) * chr(self.bs - len(s) % self.bs)
+        return bytes(s + (self.bs - len(s) % self.bs) * chr(self.bs - len(s) % self.bs), 'utf-8')
 
     def format(self, message):
         return '#{}|4.65|2|1.988|10|'.format(self.actions[message])
