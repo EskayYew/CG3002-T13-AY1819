@@ -28,15 +28,20 @@ class Communication:
     def _pad(self, s):
         return bytes(s + (self.bs - len(s) % self.bs) * chr(self.bs - len(s) % self.bs), 'utf-8')
 
+    # format thrown with dummy values
     def format(self, message):
         return '#{}|4.65|2|1.988|10|'.format(self.actions[message])
+
+    # message can be replaced by a dict or list in future
+    def sendMessage(self, message):
+        message = self.format(message)
+        message = self.encrypt(message)
+        self.client.send(message)    
 
     def communicate(self):
         message = input("Enter Move Name: ")
         while message != 'q':
-            message = self.format(message)
-            message = self.encrypt(message)
-            self.client.send(message)
+            self.sendMessage(message)
             message = input("Enter Move Name: ")
 
         self.client.close()

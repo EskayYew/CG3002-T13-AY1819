@@ -12,13 +12,14 @@ class server_auth:
         #print(decodedMSG)
         iv = decodedMSG[:16]
         #print(iv)
-        secret_key = Key; 
-#        secret_key = base64.b64decode(Key)
-        cipher = AES.new(secret_key,AES.MODE_CBC,iv)
+        Key = bytes(Key, "utf8")
+        #secret_key = base64.b64decode(Key)
+        cipher = AES.new(Key,AES.MODE_CBC,iv)
         decryptedText = cipher.decrypt(decodedMSG[16:]).strip()
         decryptedTextStr = decryptedText.decode('utf8')
         decryptedTextStr1 = decryptedTextStr[decryptedTextStr.find('#'):] 
         decryptedTextFinal = bytes(decryptedTextStr1[1:],'utf8').decode('utf8')
+        print(decryptedTextFinal)
         action = decryptedTextFinal.split('|')[0]
         voltage = decryptedTextFinal.split('|')[1]
         current = decryptedTextFinal.split('|')[2]
