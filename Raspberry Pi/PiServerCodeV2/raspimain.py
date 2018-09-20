@@ -31,15 +31,18 @@ class MachineLearning(threading.Thread):
         # machine learning will iterate through databuffer and determine action
         action = self.processData(self.databuffer)
 
+        # process lock required so as to prevent any corruption of any the sent data to server.
         processLock.acquire()
         print(action)
         self.sender.sendMessage(action)
         processLock.release()
 
+        # need to create a flag so if action is sent then we reset the buffer.
         self.buffer.reset()
         self.databuffer = []
         threading.Timer(2, self.processAction).start()
 
+    # suppose to start after 60 seconds. 5 is dummy value for testing.
     def run(self):
         threading.Timer(5, self.processAction).start()
 
@@ -86,6 +89,8 @@ class Receiver(threading.Thread):
                 self.is_id = not self.is_id
         # print(chksum)
         # print(data_buff)
+
+        # if checksum matches, then data is clean and ready to be stored into circular buffer
         if (str(ord((self.data_buff[self.msg_len - 1]))) == self.chksum.decode()):
             self.messages_recieved += 1
             #print("Data received and verified")
