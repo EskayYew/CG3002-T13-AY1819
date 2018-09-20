@@ -4,7 +4,7 @@
 
 // System variables
 #define STACK_SIZE       200
-#define SENSOR_COUNT     1
+#define SENSOR_COUNT     5
 #define USB_DEBUG_MODE   1
 
 //buffer sizes
@@ -12,9 +12,8 @@
 #define MSG_LEN          (2 * SENSOR_COUNT) + 1 
 
 // Task delays
-#define READ_DATA_DELAY  500
-#define MSG_FORMAT_DELAY 600
-#define SEND_DELAY       3000
+#define READ_DATA_DELAY  50
+#define SEND_DELAY       50
 
 
 
