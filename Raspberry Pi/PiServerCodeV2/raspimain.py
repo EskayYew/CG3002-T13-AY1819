@@ -1,6 +1,11 @@
 import threading
 import time
 import serial
+import socket
+import sys
+import base64
+from Crypto import Random
+from Crypto.Cipher import AES
 from CircleBuffer import CircleBuffer
 
 # Applying threading on different processes between classes
@@ -10,10 +15,11 @@ from CircleBuffer import CircleBuffer
 processLock = threading.Lock()
 
 class MachineLearning(threading.Thread):
-    def __init__(self, bufferX):
+    def __init__(self, bufferX, client):
         threading.Thread.__init__(self)
         self.databuffer = []
         self.buffer = bufferX
+        self.sender = client
    
     def processData(self, bufferY):
         print(bufferY)
@@ -27,6 +33,7 @@ class MachineLearning(threading.Thread):
 
         processLock.acquire()
         print(action)
+        self.sender.sendMessage(action)
         processLock.release()
 
         self.buffer.reset()
@@ -83,6 +90,12 @@ class Receiver(threading.Thread):
             self.messages_recieved += 1
             #print("Data received and verified")
             print('{} messages received'.format(self.messages_recieved))
+
+            # must lock when feeding data to buffer. 
+            processLock.acquire()
+            self.buffer.append(self.data_buff)
+            processLock.release()
+            
             self.ser.write(b'1')
         else:
             self.ser.write(b'6')
@@ -96,9 +109,7 @@ class Receiver(threading.Thread):
             pass
         #print("Message received")
         #print(self.data_buff)
-        processLock.acquire()
-        self.buffer.append(self.data_buff)
-        processLock.release()
+
         self.data_buff = []
         self.is_id = True
         self.chksum = b'0'
@@ -113,18 +124,54 @@ class Receiver(threading.Thread):
     def run(self):
         self.receiveLoop()
 
+
+class Communication:
+
+    def __init__(self, host, port):
+        self.host = host
+        self.port = int(port)
+        self.bs = 16
+        self.key = bytes("1234123412341234".encode("utf8"))
+        
+        self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.client.connect((self.host, self.port))
+        print("[+] You are currently connected to ", self.host + ":" + str(self.port))
+
+        self.actions = {'wipers':'wipers', 'number7':'number7', 'chicken':'chicken',
+            'sidestep':'sidestep', 'turnclap':'turnclap', 'logout':'logout'}
+
+    def encrypt(self, message):
+        text = self._pad(message)
+        iv = Random.new().read(AES.block_size)
+        cipher = AES.new(self.key, AES.MODE_CBC, iv)
+        return base64.b64encode(iv + cipher.encrypt(text))
+
+    def _pad(self, s):
+        return bytes(s + (self.bs - len(s) % self.bs) * chr(self.bs - len(s) % self.bs), 'utf-8')
+
+    # format thrown with dummy values
+    # To replace values of voltage, current, power, cumpower       
+    def format(self, message):
+        return '#{}|4.65|2|1.988|10|'.format(self.actions[message])
+
+    # message can be replaced by a list containing action and calculation values in future
+    def sendMessage(self, message):
+        message = self.format(message)
+        message = self.encrypt(message)
+        self.client.send(message)    
+
 class Pi:
-    def __init__(self):
+    def __init__(self, host, port):
         self.dataList = [0, 0, 0, 0]
         self.threads = []
         self.buffer = CircleBuffer(50)
+        self.client = Communication(host, port) 
 
     def main(self):
         SENSOR_COUNT = 5
 
         receiver = Receiver(SENSOR_COUNT, self.buffer)
-        
-        machine = MachineLearning(self.buffer)
+        machine = MachineLearning(self.buffer, self.client)
 
         self.threads.append(machine)
         self.threads.append(receiver)
@@ -139,5 +186,7 @@ class Pi:
         print('Program End')
 
 if __name__ == '__main__':
-    pi = Pi()
+    host = sys.argv[1]
+    port = sys.argv[2]
+    pi = Pi(host, port)
     pi.main()
