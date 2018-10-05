@@ -1,0 +1,16 @@
+Readings are from linear acceleration of onboard accelerometer of Samsung Galaxy S7
+
+Data is sampled every 50ms.
+
+Each block has 40 datapoints (2 seconds). Sliding window occurs every 0.5s
+
+The following features will be attached at the end of each block
+max_x
+min_x
+range_x
+max_y
+min_y
+range_y
+max_z
+min_z
+range_z
