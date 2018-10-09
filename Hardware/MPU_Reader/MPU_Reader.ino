@@ -3,6 +3,8 @@ extern "C" {
 #include "utility/twi.h"  // from Wire library, so we can do bus scanning
 }
 
+const int switchPin = 12; //the switch connect to pin 12
+int switchState = 0;         // variable for reading the pushbutton status
 const int MPU=0x68; 
 #define TCAADDR 0x70
 int16_t AcX,AcY,AcZ,Tmp,GyX,GyY,GyZ;
@@ -16,6 +18,8 @@ void tcaselect(uint8_t i) {
 }
 
 void setup(){
+  pinMode(switchPin, INPUT); //initialize thebuttonPin as input
+  
   Wire.begin();
   tcaselect(0);
   Wire.beginTransmission(MPU);
@@ -35,6 +39,10 @@ void setup(){
   Serial.begin(115200);
 }
 void loop(){
+  switchState = digitalRead(switchPin);
+  
+  if (switchState == HIGH ) {
+  
   tcaselect(0);
   Wire.beginTransmission(MPU);
   Wire.write(0x3B);  
@@ -43,14 +51,15 @@ void loop(){
   AcX=Wire.read()<<8|Wire.read();    
   AcY=Wire.read()<<8|Wire.read();  
   AcZ=Wire.read()<<8|Wire.read();  
+  Tmp=Wire.read()<<8|Wire.read();  
   GyX=Wire.read()<<8|Wire.read();  
   GyY=Wire.read()<<8|Wire.read();  
   GyZ=Wire.read()<<8|Wire.read();  
   
   Serial.print("Accelerometer: ");
-  Serial.print("X0 = "); Serial.print(AcX/8192);
-  Serial.print(" | Y0 = "); Serial.print(AcY/8192);
-  Serial.print(" | Z0 = "); Serial.println(AcZ/8192); 
+  Serial.print("X0 = "); Serial.print(AcX/16384);
+  Serial.print(" | Y0 = "); Serial.print(AcY/16384);
+  Serial.print(" | Z0 = "); Serial.println(AcZ/16384); 
   
   Serial.print("Gyroscope: ");
   Serial.print("X0 = "); Serial.print(GyX/131);
@@ -58,9 +67,6 @@ void loop(){
   Serial.print(" | Z0 = "); Serial.println(GyZ/131);
   Serial.println(" ");
 
-  //Wire.endTransmission();
-  //delay(333);
-
   tcaselect(1);
   Wire.beginTransmission(MPU);
   Wire.write(0x3B);  
@@ -69,25 +75,23 @@ void loop(){
   AcX=Wire.read()<<8|Wire.read();    
   AcY=Wire.read()<<8|Wire.read();  
   AcZ=Wire.read()<<8|Wire.read();  
+  Tmp=Wire.read()<<8|Wire.read();  
   GyX=Wire.read()<<8|Wire.read();  
   GyY=Wire.read()<<8|Wire.read();  
   GyZ=Wire.read()<<8|Wire.read();  
   
   Serial.print("Accelerometer: ");
-  Serial.print("X1 = "); Serial.print(AcX/8192);
-  Serial.print(" | Y1 = "); Serial.print(AcY/8192);
-  Serial.print(" | Z1 = "); Serial.println(AcZ/8192); 
+  Serial.print("X0 = "); Serial.print(AcX/16384);
+  Serial.print(" | Y0 = "); Serial.print(AcY/16384);
+  Serial.print(" | Z0 = "); Serial.println(AcZ/16384); 
   
   Serial.print("Gyroscope: ");
-  Serial.print("X1 = "); Serial.print(GyX/131);
-  Serial.print(" | Y1 = "); Serial.print(GyY/131);
-  Serial.print(" | Z1 = "); Serial.println(GyZ/131);
+  Serial.print("X0 = "); Serial.print(GyX/131);
+  Serial.print(" | Y0 = "); Serial.print(GyY/131);
+  Serial.print(" | Z0 = "); Serial.println(GyZ/131);
   Serial.println(" ");
 
-  //Wire.endTransmission();
-  //delay(333);
-
-  tcaselect(1);
+  tcaselect(2);
   Wire.beginTransmission(MPU);
   Wire.write(0x3B);  
   Wire.endTransmission(false);
@@ -95,18 +99,48 @@ void loop(){
   AcX=Wire.read()<<8|Wire.read();    
   AcY=Wire.read()<<8|Wire.read();  
   AcZ=Wire.read()<<8|Wire.read();  
+  Tmp=Wire.read()<<8|Wire.read();  
   GyX=Wire.read()<<8|Wire.read();  
   GyY=Wire.read()<<8|Wire.read();  
   GyZ=Wire.read()<<8|Wire.read();  
   
   Serial.print("Accelerometer: ");
-  Serial.print("X1 = "); Serial.print(AcX/8192);
-  Serial.print(" | Y1 = "); Serial.print(AcY/8192);
-  Serial.print(" | Z1 = "); Serial.println(AcZ/8192); 
+  Serial.print("X0 = "); Serial.print(AcX/16384);
+  Serial.print(" | Y0 = "); Serial.print(AcY/16384);
+  Serial.print(" | Z0 = "); Serial.println(AcZ/16384); 
   
   Serial.print("Gyroscope: ");
-  Serial.print("X1 = "); Serial.print(GyX/131);
-  Serial.print(" | Y1 = "); Serial.print(GyY/131);
-  Serial.print(" | Z1 = "); Serial.println(GyZ/131);
+  Serial.print("X0 = "); Serial.print(GyX/131);
+  Serial.print(" | Y0 = "); Serial.print(GyY/131);
+  Serial.print(" | Z0 = "); Serial.println(GyZ/131);
   Serial.println(" ");
+
+  tcaselect(3);
+  Wire.beginTransmission(MPU);
+  Wire.write(0x3B);  
+  Wire.endTransmission(false);
+  Wire.requestFrom(MPU,12,true);  
+  AcX=Wire.read()<<8|Wire.read();    
+  AcY=Wire.read()<<8|Wire.read();  
+  AcZ=Wire.read()<<8|Wire.read();  
+  Tmp=Wire.read()<<8|Wire.read();  
+  GyX=Wire.read()<<8|Wire.read();  
+  GyY=Wire.read()<<8|Wire.read();  
+  GyZ=Wire.read()<<8|Wire.read();  
+  
+  Serial.print("Accelerometer: ");
+  Serial.print("X0 = "); Serial.print(AcX/16384);
+  Serial.print(" | Y0 = "); Serial.print(AcY/16384);
+  Serial.print(" | Z0 = "); Serial.println(AcZ/16384); 
+  
+  Serial.print("Gyroscope: ");
+  Serial.print("X0 = "); Serial.print(GyX/131);
+  Serial.print(" | Y0 = "); Serial.print(GyY/131);
+  Serial.print(" | Z0 = "); Serial.println(GyZ/131);
+  Serial.println(" ");
+  
+  //Wire.endTransmission();
+  delay(333);
+
+  }
 }
