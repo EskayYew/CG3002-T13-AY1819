@@ -18,7 +18,7 @@ class MachineLearning(threading.Thread):
         self.buffer = bufferX
    
     def processData(self, bufferY):
-        print(bufferY)
+        print('Machine Learning')
 
         return 'chicken'
 
@@ -103,6 +103,8 @@ class Receiver(threading.Thread):
         #print(self.data_buff)
         processLock.acquire()
         self.buffer.append(self.data_buff)
+        print(self.data_buff)
+        print(self.buffer.getSize)
         processLock.release()
         self.data_buff = []
         self.is_id = True
