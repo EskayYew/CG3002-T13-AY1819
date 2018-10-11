@@ -7,7 +7,8 @@ const int switchPin = 12; //the switch connect to pin 12
 int switchState = 0;         // variable for reading the pushbutton status
 const int MPU=0x68; 
 #define TCAADDR 0x70
-int16_t AcX,AcY,AcZ,Tmp,GyX,GyY,GyZ;
+const int flexPin = 11;
+int16_t AcX,AcY,AcZ,Tmp,GyX,GyY,GyZ, Flex;
  
 void tcaselect(uint8_t i) {
   if (i > 7) return;
@@ -19,6 +20,8 @@ void tcaselect(uint8_t i) {
 
 void setup(){
   pinMode(switchPin, INPUT); //initialize thebuttonPin as input
+
+  pinMode(flexPin, INPUT);
   
   Wire.begin();
   tcaselect(0);
@@ -38,10 +41,13 @@ void setup(){
   Wire.endTransmission(true);
   Serial.begin(115200);
 }
+
 void loop(){
   switchState = digitalRead(switchPin);
   
   if (switchState == HIGH ) {
+
+  Flex = digitalRead(flexPin);
   
   tcaselect(0);
   Wire.beginTransmission(MPU);
