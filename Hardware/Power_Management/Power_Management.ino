@@ -2,12 +2,12 @@
 #define NUM_SAMPLES 20
 
 // Constants
-const int SENSOR_PIN_A0 = A0;         // Input pin for measuring Vout from INA169
-const int SENSOR_PIN_A1 = A1;         // Input pin for measuring Vout from voltage divider
-const float RS = 0.1;                 // Shunt resistor value (in ohms) for INA169
-const float VOLTAGE_REF = 4.875;        // Reference voltage for analog read, //5.126 <-- voltage regulator
-const float R1 = 22000.0;             // Resistor 22k ohms (10% tolerance)
-const float R2 = 22000.0;             // Resistor 22k ohms with 20% tolerance from R1 26888.889/25545.455/20431 with 5v
+const int SENSOR_PIN_A0 = A0;   // Input pin for measuring Vout from INA169
+const int SENSOR_PIN_A1 = A1;   // Input pin for measuring Vout from voltage divider
+const float RS = 0.1;           // Shunt resistor value (in ohms) for INA169
+const float VOLTAGE_REF = 5.0;  // Reference voltage for analog read, //5.126 <-- voltage regulator
+const float R1 = 22000.0;       // Resistor 22k ohms (10% tolerance)
+const float R2 = 22000.0;       // Resistor 22k ohms with 20% tolerance from R1 26888.889/25545.455/20431 with 5v
 
 // Global Variables
 unsigned char sample_count = 0;       // current sample number
@@ -23,8 +23,6 @@ float power = 0.0;                    // Calculated power value
 float lastPower = 0.0;                // Previous power value
 float energy = 0.0;                   // Calculated energy value
 float elapsedTime = 0.0;
-
-float timer; // convert milliseconds to seconds
 
 void printDigits(int digits) {
   // utility function for digital clock display: prints preceding colon and leading 0
@@ -57,10 +55,9 @@ void loop() {
   // Vout = (4.875*sample)/1000
   // Actual battery voltage = (2*Vout)
   // Remap the ADC value into a voltage number
-  sensorValueA0 = (sensorValueA0 / (float)NUM_SAMPLES * VOLTAGE_REF) / 1024.0;
-  voltageOut = (sensorValueA1 / (float)NUM_SAMPLES * VOLTAGE_REF) / 1024.0;
+  sensorValueA0 = (sensorValueA0 / (float)NUM_SAMPLES * 4.875) / 1024.0;
+  voltageOut = (sensorValueA1 / (float)NUM_SAMPLES * 4.875) / 1024.0;
 
-  // Voltage value
   // Calculate Vin from Vout and two resistor
   // Battery V = 5.224, Voltage across resistor = 2.608
   // division factor = 2.001533742331288343558282208589
@@ -79,9 +76,11 @@ void loop() {
   power = current * voltageIn;
   
   // Energy value
+  if (power != 0) {
   energy = (power * elapsedTime) / 3600;
-
-  // Output value (in amps/amps-hour/watts/watts-hour/voltage/time) to the serial monitor to 2 decimal
+  }
+  
+  // Output value (in amps/watts/voltage/joules) to the serial monitor to 2 decimal
   // places
   Serial.print(current, 2);
   Serial.print(" A | ");
@@ -106,5 +105,6 @@ void loop() {
   sensorValueA1 = 0;
   // Delay program for a few milliseconds
   delay(800);
+
 }
 
