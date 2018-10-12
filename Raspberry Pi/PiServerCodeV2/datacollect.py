@@ -45,7 +45,7 @@ class Receiver(threading.Thread):
     def __init__(self, SENSOR_COUNT, bufferX):
         threading.Thread.__init__(self)
         self.SENSOR_COUNT = SENSOR_COUNT
-        self.msg_len = (2 * self.SENSOR_COUNT) + 1 
+        self.msg_len = SENSOR_COUNT
         
         self.buffer = bufferX
         # Setup serial port
@@ -54,9 +54,8 @@ class Receiver(threading.Thread):
         self.ser.reset_output_buffer()
         
         self.data_buff = []
-        self.chksum = b'0'
+        self.chksum = 0
         self.is_id = True
-        self.messages_recieved = 0
 
     def handshake(self):
         # Wait for SYNC packet
@@ -73,42 +72,46 @@ class Receiver(threading.Thread):
         
     def communicate(self):
     #while True:
+    # read data sequentially and store into self.data_buff
+    # do checksum and compare with checksum that is on the last position of data_buff 
         while (len(self.data_buff) < self.msg_len):
-            data = self.ser.read()
-            #print(data)
-            if (data != b'\r' and data != b'\n'):
-                #print(ord(data))
-                if not self.is_id:
-                    self.chksum = bytes(x ^ y for x, y in zip(self.chksum, data))
-                self.data_buff.append(data)
-                self.is_id = not self.is_id
+            lowByte = self.ser.read()
+            highByte = self.ser.read()
+            data = (highByte << 8) | lowByte
+
+            # data = self.ser.read()
+            # print(data)
+            self.chksum ^= data
+            self.data_buff.append(data)
+
         # print(chksum)
-        # print(data_buff)
-        if (str(ord((self.data_buff[self.msg_len - 1]))) == self.chksum.decode()):
-            self.messages_recieved += 1
-            #print("Data received and verified")
-            print('{} messages received'.format(self.messages_recieved))
+
+        print(self.data_buff)
+        
+        # if checksum matches, then data is clean and ready to be stored into circular buffer
+        if (self.data_buff[self.msg_len - 1] == self.chksum):
+            
+            # print("Data received and verified")
+            # must lock when feeding data to buffer. 
+            processLock.acquire()
+            self.buffer.append(self.data_buff)
+            print(self.buffer.getSize)
+            processLock.release()
+            
             self.ser.write(b'1')
         else:
             self.ser.write(b'6')
             print("Checksum error")
-            print('expected: {} recv: {}'.format(str(ord((self.data_buff[self.msg_len - 1]))), self.chksum.decode()))
+
         # Wait for FIN packet
         while(self.ser.read() != b'\x07'):
             pass
         self.ser.write(b'7')
         while(self.ser.read() != b'\x01'):
             pass
-        #print("Message received")
-        #print(self.data_buff)
-        processLock.acquire()
-        self.buffer.append(self.data_buff)
-        print(self.data_buff)
-        print(self.buffer.getSize)
-        processLock.release()
+
         self.data_buff = []
-        self.is_id = True
-        self.chksum = b'0'
+        self.chksum = 0
 
     def receiveLoop(self):
         # newTime = time.time() + 5
@@ -128,7 +131,7 @@ class Pi:
 
     def main(self):
         try:
-            SENSOR_COUNT = 5
+            SENSOR_COUNT = 26
 
             receiver = Receiver(SENSOR_COUNT, self.buffer)
             
