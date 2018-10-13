@@ -77,15 +77,16 @@ class Receiver(threading.Thread):
             checksum = checksum ^ (int.from_bytes(byte1, byteorder="big", signed=True))
             byte2 = bArray[counter * 2 + 1]
             checksum = checksum ^ (int.from_bytes(byte2, byteorder="big", signed=True))
-            combinedValue = int.from_bytes(byte1 + byte2, byteorder="big", signed=True)
+            combinedValue = int.from_bytes(byte2 + byte1, byteorder="big", signed=True)
             
+
             newArray.append(combinedValue)
 
         chkPos = chkPos*2
 
         # checksum is at 50 to 51 position of bArray
         # if checksum matches, then data is clean and ready to be stored into circular buffer
-        if (checksum == (int.from_bytes(bArray[chkPos] + bArray[chkPos+1] , byteorder="big", signed=True))):            
+        if (checksum == (int.from_bytes(bArray[chkPos+1] + bArray[chkPos] , byteorder="big", signed=True))):            
             self.ser.write(b'1')
             return newArray
         else:
