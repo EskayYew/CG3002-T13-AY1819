@@ -18,7 +18,7 @@ class MachineLearning(threading.Thread):
         self.buffer = bufferX
    
     def processData(self, bufferY):
-        print('Machine Learning')
+        #print('Machine Learning')
 
         return 'chicken'
 
@@ -30,7 +30,7 @@ class MachineLearning(threading.Thread):
         action = self.processData(self.databuffer)
 
         processLock.acquire()
-        print(action)
+        #print(action)
         processLock.release()
 
         # self.buffer.reset()
@@ -51,16 +51,20 @@ class Receiver(threading.Thread):
         self.buffer = bufferX
         # Setup serial port
         self.ser = serial.Serial(            
-            port='/dev/ttyS0',
+            #port='/dev/ttyS0',
+            port = 'COM5',
             baudrate = 115200,
             parity=serial.PARITY_NONE,
             stopbits=serial.STOPBITS_ONE,
             bytesize=serial.EIGHTBITS,
-            timeout=0.1
+            #timeout=0.1
         )
+        self.ser.flushInput()
+        self.ser.flushOutput()
 
-        self.ser.reset_input_buffer()
-        self.ser.reset_output_buffer()
+
+        # self.ser.reset_input_buffer()
+        # self.ser.reset_output_buffer()
         
         self.data_buff = []
         self.byteArray = []
@@ -78,6 +82,7 @@ class Receiver(threading.Thread):
             byte2 = bArray[counter * 2 + 1]
             checksum = checksum ^ (int.from_bytes(byte2, byteorder="big", signed=True))
             combinedValue = int.from_bytes(byte2 + byte1, byteorder="big", signed=True)
+            #checksum = combinedValue ^ checksum
             
 
             newArray.append(combinedValue)
@@ -86,12 +91,15 @@ class Receiver(threading.Thread):
 
         # checksum is at 50 to 51 position of bArray
         # if checksum matches, then data is clean and ready to be stored into circular buffer
-        if (checksum == (int.from_bytes(bArray[chkPos+1] + bArray[chkPos] , byteorder="big", signed=True))):            
+        if (checksum == (int.from_bytes(bArray[chkPos] , byteorder="big", signed=True))):            
             self.ser.write(b'1')
+            print("success")
             return newArray
         else:
             self.ser.write(b'6')
             print("Checksum error")
+            print(self.byteArray)
+            print(newArray)
             return None
 
     def communicate(self):
@@ -99,28 +107,25 @@ class Receiver(threading.Thread):
         # Wait for SYNC packet
         while(self.ser.read() != b'\x00'):
             pass
-        #print("connection with arduino established")
         self.ser.write(b'1')
         # Wait for SYNC-ACK packet
         while(self.ser.read() != b'\x02'):
             pass
-
+        #print("Starting data tranfser...")
         # handshake established with handshake flag
 
         #will be receiving 52 array bytes, 0 to 51
-        while (len(self.data_buff) < self.msg_len):
+        while (len(self.byteArray) < 51):
             rcv = self.ser.read()
+            #print(rcv.decode())
             if (rcv != b'\r' and rcv != b'\n'):
                 self.byteArray.append(rcv)
-
         self.data_buff = self.checkByteArray(self.byteArray)
         
         if(self.data_buff is not None):
             processLock.acquire()
             self.buffer.append(self.data_buff)
             processLock.release()
-
-        print(self.data_buff)
 
         # Wait for FIN packet
         while(self.ser.read() != b'\x07'):
@@ -129,15 +134,15 @@ class Receiver(threading.Thread):
         while(self.ser.read() != b'\x01'):
             pass
 
-        self.byteArray.clear()
-        self.data_buff.clear()
+        self.byteArray = []
+        self.data_buff = []
         self.chksum = 0
 
     def receiveLoop(self):
         # newTime = time.time() + 5
         self.communicate()
         # threading.Timer(newTime - time.time(), self.printSelf).start()
-        threading.Timer(0.1, self.receiveLoop).start()
+        threading.Timer(0.05, self.receiveLoop).start()
 
     def run(self):
         self.receiveLoop()
@@ -168,6 +173,7 @@ class Pi:
 
             file = str(sys.argv[1])
             databuffer = self.buffer.get()
+            print(databuffer)
             myFile = open(file, 'w', newline='')
             with myFile:
                 writer = csv.writer(myFile)
