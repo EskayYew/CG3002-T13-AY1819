@@ -16,10 +16,9 @@ class MachineLearning(threading.Thread):
         threading.Thread.__init__(self)
         self.databuffer = []
         self.buffer = bufferX
-   
+
     def processData(self, bufferY):
         #print('Machine Learning')
-
         return 'chicken'
 
     def processAction(self):
@@ -45,14 +44,13 @@ class Receiver(threading.Thread):
     def __init__(self, bufferX):
         threading.Thread.__init__(self)
         
-        self.SENSOR_COUNT = 26
-        self.msg_len = self.SENSOR_COUNT * 2
+        self.SENSOR_COUNT = 25
         
         self.buffer = bufferX
         # Setup serial port
         self.ser = serial.Serial(            
-            #port='/dev/ttyS0',
-            port = 'COM5',
+            #port = 'COM5',
+            port='/dev/ttyS0',
             baudrate = 115200,
             parity=serial.PARITY_NONE,
             stopbits=serial.STOPBITS_ONE,
@@ -61,7 +59,6 @@ class Receiver(threading.Thread):
         )
         self.ser.flushInput()
         self.ser.flushOutput()
-
 
         # self.ser.reset_input_buffer()
         # self.ser.reset_output_buffer()
@@ -73,7 +70,7 @@ class Receiver(threading.Thread):
         newArray = []
         checksum = 0
 
-        chkPos = self.SENSOR_COUNT-1
+        chkPos = self.SENSOR_COUNT
 
         # go from 0 to 24 since sensorcount is 25(50,51)
         for counter in range (0, chkPos):
@@ -84,12 +81,11 @@ class Receiver(threading.Thread):
             combinedValue = int.from_bytes(byte2 + byte1, byteorder="big", signed=True)
             #checksum = combinedValue ^ checksum
             
-
             newArray.append(combinedValue)
 
         chkPos = chkPos*2
 
-        # checksum is at 50 to 51 position of bArray
+        # checksum is at 50th position of bArray
         # if checksum matches, then data is clean and ready to be stored into circular buffer
         if (checksum == (int.from_bytes(bArray[chkPos] , byteorder="big", signed=True))):            
             self.ser.write(b'1')
@@ -111,13 +107,13 @@ class Receiver(threading.Thread):
         # Wait for SYNC-ACK packet
         while(self.ser.read() != b'\x02'):
             pass
+
         #print("Starting data tranfser...")
         # handshake established with handshake flag
 
         #will be receiving 52 array bytes, 0 to 51
         while (len(self.byteArray) < 51):
             rcv = self.ser.read()
-            #print(rcv.decode())
             if (rcv != b'\r' and rcv != b'\n'):
                 self.byteArray.append(rcv)
         self.data_buff = self.checkByteArray(self.byteArray)
@@ -136,7 +132,6 @@ class Receiver(threading.Thread):
 
         self.byteArray = []
         self.data_buff = []
-        self.chksum = 0
 
     def receiveLoop(self):
         # newTime = time.time() + 5
@@ -170,7 +165,6 @@ class Pi:
                 time.sleep(0.001)
 
         except KeyboardInterrupt:
-
             file = str(sys.argv[1])
             databuffer = self.buffer.get()
             print(databuffer)
