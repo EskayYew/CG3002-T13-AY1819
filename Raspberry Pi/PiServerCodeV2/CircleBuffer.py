@@ -15,6 +15,9 @@ class CircleBuffer():
     def get(self):
         return self.buffer[:self.currSize]
 
+    def getSize(self):
+        return self.currSize
+
     # Use reset after machine learning algo
     def reset(self):
         self.buffer = [None]*self.size
