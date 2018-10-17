@@ -53,7 +53,7 @@ cbuffer_t msg_buffer;
 SemaphoreHandle_t xMsgBuffSemaphore;
 
 // Global Variables for power reading
-int16_t power_data[6];                // Power data to be sent as 16 bit integers
+int16_t power_data[4];                // Power data to be sent as 16 bit integers
 uint8_t sample_count = 0;             // Current sample number
 int16_t sensorValueA0 = 0;            // Variable to store value from analog read
 int16_t sensorValueA1 = 0;            // Variable to store value from analog read/sum of samples taken
@@ -283,11 +283,9 @@ void update_power_readings() {
       }
 
       power_data[0] = current * 100;
-      power_data[1] = ampHr * 100;
-      power_data[2] = power * 100;
-      power_data[3] = energy * 100;
-      power_data[4] = voltageOut * 100;
-      power_data[5] = voltageIn * 100;
+      power_data[1] = power * 100;
+      power_data[2] = energy * 100;
+      power_data[3] = voltageIn * 100;
 
       sample_count = 0;
       sensorValueA0 = 0;
@@ -364,7 +362,7 @@ void TaskReadData(void *pvParameters) {
         //current_msg_ptr[msg_buffer_index++] = Flex;
 
         //Get power readings - METHOD 1
-        for(int k = 0; k < 6; k++) {
+        for(int k = 0; k < 4; k++) {
           int16_t data = power_data[k];
           uint8_t lsb = (data & 0x00FF);
           uint8_t msb = (data & 0xFF00) >> 8;
