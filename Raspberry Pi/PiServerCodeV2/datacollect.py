@@ -11,41 +11,12 @@ from CircleBuffer import CircleBuffer
 
 processLock = threading.Lock()
 
-class MachineLearning(threading.Thread):
-    def __init__(self, bufferX):
-        threading.Thread.__init__(self)
-        self.databuffer = []
-        self.buffer = bufferX
-
-    def processData(self, bufferY):
-        #print('Machine Learning')
-        return 'chicken'
-
-    def processAction(self):
-        self.databuffer = self.buffer.get()
-
-        # machine learning will iterate through databuffer and determine action
-        # if(self.buffer.getSize == 250):
-        action = self.processData(self.databuffer)
-
-        processLock.acquire()
-        #print(action)
-        processLock.release()
-
-        # self.buffer.reset()
-        # self.databuffer = []        
-        
-        threading.Timer(2, self.processAction).start()
-
-    def run(self):
-        threading.Timer(5, self.processAction).start()
-
 class Receiver(threading.Thread):
     def __init__(self, bufferX):
         threading.Thread.__init__(self)
         
-        self.SENSOR_COUNT = 25
-        
+        self.SENSOR_COUNT = 29
+        self.energy = 0.00
         self.buffer = bufferX
         # Setup serial port
         self.ser = serial.Serial(            
@@ -83,6 +54,10 @@ class Receiver(threading.Thread):
             
             newArray.append(combinedValue)
 
+        self.energy += newArray[28]
+
+        newArray.append(self.energy)
+        
         chkPos = chkPos*2
 
         # checksum is at 50th position of bArray
@@ -112,7 +87,7 @@ class Receiver(threading.Thread):
         # handshake established with handshake flag
 
         #will be receiving 52 array bytes, 0 to 51
-        while (len(self.byteArray) < 51):
+        while (len(self.byteArray) < 59):
             rcv = self.ser.read()
             if (rcv != b'\r' and rcv != b'\n'):
                 self.byteArray.append(rcv)
@@ -130,6 +105,9 @@ class Receiver(threading.Thread):
         while(self.ser.read() != b'\x01'):
             pass
 
+        if(self.buffer.getSize() == 500):
+            print('buffer full')        
+
         self.byteArray = []
         self.data_buff = []
 
@@ -137,7 +115,7 @@ class Receiver(threading.Thread):
         # newTime = time.time() + 5
         self.communicate()
         # threading.Timer(newTime - time.time(), self.printSelf).start()
-        threading.Timer(0.05, self.receiveLoop).start()
+        threading.Timer(0.02, self.receiveLoop).start()
 
     def run(self):
         self.receiveLoop()
@@ -146,15 +124,15 @@ class Pi:
     def __init__(self):
         self.dataList = [0, 0, 0, 0]
         self.threads = []
-        self.buffer = CircleBuffer(250)
+        self.buffer = CircleBuffer(500)
 
     def main(self):
         try:
             receiver = Receiver(self.buffer)
             
-            machine = MachineLearning(self.buffer)
+            # machine = MachineLearning(self.buffer)
 
-            self.threads.append(machine)
+            # self.threads.append(machine)
             self.threads.append(receiver)
 
             for t in self.threads:
