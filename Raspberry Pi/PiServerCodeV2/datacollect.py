@@ -16,7 +16,7 @@ class Receiver(threading.Thread):
         threading.Thread.__init__(self)
         
         self.SENSOR_COUNT = 29
-        self.energy = 0.00
+        self.energy = 0.000
         self.buffer = bufferX
         # Setup serial port
         self.ser = serial.Serial(            
@@ -52,19 +52,23 @@ class Receiver(threading.Thread):
             combinedValue = int.from_bytes(byte2 + byte1, byteorder="big", signed=True)
             #checksum = combinedValue ^ checksum
             
+            if counter >= 25 and counter <= 27:
+                combinedValue /= 100
+            if counter == 28:
+                combinedValue /= 1000
+
             newArray.append(combinedValue)
 
         self.energy += newArray[28]
 
         newArray.append(self.energy)
-        
+
         chkPos = chkPos*2
 
         # checksum is at 50th position of bArray
         # if checksum matches, then data is clean and ready to be stored into circular buffer
         if (checksum == (int.from_bytes(bArray[chkPos] , byteorder="big", signed=True))):            
             self.ser.write(b'1')
-            print("success")
             return newArray
         else:
             self.ser.write(b'6')
@@ -105,17 +109,21 @@ class Receiver(threading.Thread):
         while(self.ser.read() != b'\x01'):
             pass
 
-        if(self.buffer.getSize() == 500):
+        if(self.buffer.getSize() == 250):
             print('buffer full')        
+
+        print(self.buffer.getSize())
 
         self.byteArray = []
         self.data_buff = []
 
     def receiveLoop(self):
+        
         # newTime = time.time() + 5
-        self.communicate()
+        while True:    
+            self.communicate()
         # threading.Timer(newTime - time.time(), self.printSelf).start()
-        threading.Timer(0.02, self.receiveLoop).start()
+        # threading.Timer(0.02, self.receiveLoop).start()
 
     def run(self):
         self.receiveLoop()
@@ -124,7 +132,7 @@ class Pi:
     def __init__(self):
         self.dataList = [0, 0, 0, 0]
         self.threads = []
-        self.buffer = CircleBuffer(500)
+        self.buffer = CircleBuffer(250)
 
     def main(self):
         try:
