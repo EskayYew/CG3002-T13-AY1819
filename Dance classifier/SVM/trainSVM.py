@@ -63,10 +63,13 @@ clf.fit(TRANSFORMED_X, y)
 #Uncomment bottom part to do CV testing.
 #IMPORTANT: DO NOT FIT ANY DATA TO MODEL BEFORE CV TESTING.
 '''
+from sklearn.pipeline import make_pipeline
+SVM_CV = make_pipeline(StandardScaler(), SVC())
+
 from sklearn.model_selection import ShuffleSplit
 rs = ShuffleSplit(n_splits=30, random_state=0)
 
 from sklearn.model_selection import cross_val_score
-scores = cross_val_score(clf, TRANSFORMED_X, y, cv=rs)
+scores = cross_val_score(SVM_CV, X, y, cv=10)
 print("Accuracy: %0.5f (+/- %0.5f)" % (scores.mean(), scores.std() * 2))
 '''
