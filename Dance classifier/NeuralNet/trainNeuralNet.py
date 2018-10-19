@@ -54,7 +54,7 @@ joblib.dump(scaler, SAVED_SCALER_NAME)
 #Train the NeuralNet
 from sklearn.neural_network import MLPClassifier
 clf = MLPClassifier(solver='adam')
-#clf.fit(TRANSFORMED_X, y)
+clf.fit(TRANSFORMED_X, y)
 
 #Save the model
 #joblib.dump(clf, SAVED_MODEL_NAME)
@@ -62,10 +62,13 @@ clf = MLPClassifier(solver='adam')
 #Uncomment bottom part to do CV testing.
 #IMPORTANT: DO NOT FIT ANY DATA TO MODEL BEFORE CV TESTING.
 '''
+from sklearn.pipeline import make_pipeline
+NN_CV = make_pipeline(MinMaxScaler(), MLPClassifier(solver='adam'))
+
 from sklearn.model_selection import ShuffleSplit
-rs = ShuffleSplit(n_splits=10, random_state=0)
+rs = ShuffleSplit(n_splits=20, random_state=0)
 
 from sklearn.model_selection import cross_val_score
-scores = cross_val_score(clf, TRANSFORMED_X, y, cv=10)
+scores = cross_val_score(NN_CV, X, y, cv=rs)
 print("Accuracy: %0.5f (+/- %0.5f)" % (scores.mean(), scores.std() * 2))
 '''
