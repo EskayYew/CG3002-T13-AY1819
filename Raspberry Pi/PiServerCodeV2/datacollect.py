@@ -15,7 +15,7 @@ class Receiver(threading.Thread):
     def __init__(self, bufferX):
         threading.Thread.__init__(self)
         
-        self.SENSOR_COUNT = 29
+        self.SENSOR_COUNT = 23
         self.energy = 0.000
         self.buffer = bufferX
         self.connection_established = False
@@ -32,8 +32,8 @@ class Receiver(threading.Thread):
         self.ser.flushInput()
         self.ser.flushOutput()
 
-        # self.ser.reset_input_buffer()
-        # self.ser.reset_output_buffer()
+        self.ser.reset_input_buffer()
+        self.ser.reset_output_buffer()
         
         self.data_buff = []
         self.byteArray = []
@@ -53,16 +53,16 @@ class Receiver(threading.Thread):
             combinedValue = int.from_bytes(byte2 + byte1, byteorder="big", signed=True)
             #checksum = combinedValue ^ checksum
             
-            if counter >= 25 and counter <= 27:
+            if counter >= 19 and counter <= 21:
                 combinedValue /= 100
-            if counter == 28:
+            if counter == 22:
                 combinedValue /= 1000
             
             newArray.append(combinedValue)
 
-        self.energy += newArray[28]
+        self.energy += newArray[22]
 
-        newArray[28] = self.energy
+        newArray[22] = self.energy
         
         chkPos = chkPos*2
 
@@ -94,16 +94,7 @@ class Receiver(threading.Thread):
     def read_data(self):
         #will be receiving 52 array bytes, 0 to 51
         timeout_counter = 0
-        while (len(self.byteArray) < 59):
-            while(self.ser.in_waiting == 0):
-                if (timeout_counter > 50000):
-                    self.byteArray = []
-                    self.data_buff = []
-                    self.connection_established = False
-                    print('termination')
-                    return
-                else:
-                    timeout_counter += 1  
+        while (len(self.byteArray) < 47):
             rcv = self.ser.read()
             if (rcv != b'\r' and rcv != b'\n'):
                 self.byteArray.append(rcv)
