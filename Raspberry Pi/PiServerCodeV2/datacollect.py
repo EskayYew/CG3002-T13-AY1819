@@ -18,6 +18,7 @@ class Receiver(threading.Thread):
         self.SENSOR_COUNT = 29
         self.energy = 0.000
         self.buffer = bufferX
+        self.connection_established = False
         # Setup serial port
         self.ser = serial.Serial(            
             #port = 'COM5',
@@ -56,29 +57,31 @@ class Receiver(threading.Thread):
                 combinedValue /= 100
             if counter == 28:
                 combinedValue /= 1000
-
+            
             newArray.append(combinedValue)
 
         self.energy += newArray[28]
 
-        newArray.append(self.energy)
-
+        newArray[28] = self.energy
+        
         chkPos = chkPos*2
 
+        arrayChecksum = (int.from_bytes(bArray[chkPos] , byteorder="big", signed=True))
         # checksum is at 50th position of bArray
         # if checksum matches, then data is clean and ready to be stored into circular buffer
-        if (checksum == (int.from_bytes(bArray[chkPos] , byteorder="big", signed=True))):            
+        if (checksum == arrayChecksum):            
             self.ser.write(b'1')
             return newArray
         else:
             self.ser.write(b'6')
             print("Checksum error")
-            print(self.byteArray)
-            print(newArray)
+            
+            print(checksum)
+            print(arrayChecksum)
+            
             return None
-
-    def communicate(self):
-
+    
+    def establish_connection(self):
         # Wait for SYNC packet
         while(self.ser.read() != b'\x00'):
             pass
@@ -86,44 +89,53 @@ class Receiver(threading.Thread):
         # Wait for SYNC-ACK packet
         while(self.ser.read() != b'\x02'):
             pass
-
-        #print("Starting data tranfser...")
-        # handshake established with handshake flag
-
+        self.connection_established = True
+    
+    def read_data(self):
         #will be receiving 52 array bytes, 0 to 51
+        timeout_counter = 0
         while (len(self.byteArray) < 59):
+            while(self.ser.in_waiting == 0):
+                if (timeout_counter > 50000):
+                    self.byteArray = []
+                    self.data_buff = []
+                    self.connection_established = False
+                    print('termination')
+                    return
+                else:
+                    timeout_counter += 1  
             rcv = self.ser.read()
             if (rcv != b'\r' and rcv != b'\n'):
                 self.byteArray.append(rcv)
+                
         self.data_buff = self.checkByteArray(self.byteArray)
         
         if(self.data_buff is not None):
             processLock.acquire()
             self.buffer.append(self.data_buff)
             processLock.release()
-
-        # Wait for FIN packet
-        while(self.ser.read() != b'\x07'):
-            pass
-        self.ser.write(b'7')
-        while(self.ser.read() != b'\x01'):
-            pass
-
-        if(self.buffer.getSize() == 250):
-            print('buffer full')        
-
-        print(self.buffer.getSize())
+            
+        if(self.buffer.getSize() % 25 == 0):
+            print(self.buffer.getSize())
 
         self.byteArray = []
         self.data_buff = []
+           
+    def communicate(self):
+        if not self.connection_established:
+            self.establish_connection()
+            self.read_data()
+        else:
+            self.read_data()
+        #print("Starting data tranfser...")
+        # handshake established with handshake flag
 
     def receiveLoop(self):
-        
         # newTime = time.time() + 5
-        while True:    
+        while True:
             self.communicate()
         # threading.Timer(newTime - time.time(), self.printSelf).start()
-        # threading.Timer(0.02, self.receiveLoop).start()
+        #threading.Timer(0.02, self.receiveLoop).start()
 
     def run(self):
         self.receiveLoop()
@@ -132,7 +144,7 @@ class Pi:
     def __init__(self):
         self.dataList = [0, 0, 0, 0]
         self.threads = []
-        self.buffer = CircleBuffer(250)
+        self.buffer = CircleBuffer(1500)
 
     def main(self):
         try:
@@ -153,7 +165,6 @@ class Pi:
         except KeyboardInterrupt:
             file = str(sys.argv[1])
             databuffer = self.buffer.get()
-            print(databuffer)
             myFile = open(file, 'w', newline='')
             with myFile:
                 writer = csv.writer(myFile)
