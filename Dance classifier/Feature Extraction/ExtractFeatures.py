@@ -7,11 +7,26 @@ RELEVANT_COLUMNS = 19
 #OUTPUT: Window of raw data with features added at the end. MODIFIES INPUT WINDOW.
 def extractFeatures(data):
     readings = extractSensorReadingsAsList(data)
-    for axis in readings:
-        data.append(extractKurtosis(axis))
-        data.append(extractEnergy(axis))
+    for i in range(len(readings)):
+        axis1 = readings[i]
+        data.append(extractMin(axis1))
+        data.append(extractMax(axis1))
+        data.append(extractKurtosis(axis1))
+        data.append(extractEnergy(axis1))
+                        
     return data
 
+#INPUT: 1-D array of data IN THE SAME AXIS
+#OUTPUT: Min value for the given data
+
+def extractMin(data):
+    return min(data)
+
+#INPUT: 1-D array of data IN THE SAME AXIS
+#OUTPUT: Max value for the given data
+
+def extractMax(data):
+    return max(data)
 
 #INPUT: 1-D array of data IN THE SAME AXIS
 #OUTPUT: Kurtosis value for the given data
