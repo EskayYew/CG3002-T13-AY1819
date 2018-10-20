@@ -46,7 +46,7 @@ X = np.array(FINAL_TRAINING_DATA)
 y = np.array(TRAINING_LABELS)
 
 from sklearn.preprocessing import MinMaxScaler
-scaler = MinMaxScaler()
+scaler = MinMaxScaler(feature_range=(-1, 1))
 TRANSFORMED_X = scaler.fit_transform(X)
 
 #Save the scaler
@@ -59,7 +59,7 @@ clf = MLPClassifier(solver='adam')
 clf.fit(TRANSFORMED_X, y)
 
 #Save the model
-#joblib.dump(clf, SAVED_MODEL_NAME)
+joblib.dump(clf, SAVED_MODEL_NAME)
 
 #Uncomment bottom part to do CV testing.
 #IMPORTANT: DO NOT FIT ANY DATA TO MODEL BEFORE CV TESTING.
