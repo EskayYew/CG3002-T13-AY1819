@@ -1,3 +1,4 @@
+import ExtractFeatures
 import ReadCSVToList
 import numpy as np
 
@@ -32,6 +33,7 @@ def loadData():
         label = files[:6] #Cut short filename
         
         for row in temp_data:
+            ExtractFeatures.extractFeatures(row)
             FINAL_TRAINING_DATA.append(row)
             TRAINING_LABELS.append(label)
 

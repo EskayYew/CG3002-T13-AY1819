@@ -1,3 +1,4 @@
+import ExtractFeatures
 import ReadCSVToList
 import numpy as np
 
@@ -32,6 +33,7 @@ def loadData():
         label = files[:6] #Cut short filename
         
         for row in temp_data:
+            ExtractFeatures.extractFeatures(row)
             FINAL_TRAINING_DATA.append(row)
             TRAINING_LABELS.append(label)
 
@@ -63,10 +65,10 @@ clf.fit(TRANSFORMED_X, y)
 #IMPORTANT: DO NOT FIT ANY DATA TO MODEL BEFORE CV TESTING.
 '''
 from sklearn.pipeline import make_pipeline
-NN_CV = make_pipeline(MinMaxScaler(), MLPClassifier(solver='adam'))
+NN_CV = make_pipeline(MinMaxScaler(feature_range=(-1, 1)), MLPClassifier(solver='adam'))
 
 from sklearn.model_selection import ShuffleSplit
-rs = ShuffleSplit(n_splits=20, random_state=0, test_size=0.2)
+rs = ShuffleSplit(n_splits=30, random_state=0, test_size=0.2)
 
 from sklearn.model_selection import cross_val_score
 scores = cross_val_score(NN_CV, X, y, cv=rs)
