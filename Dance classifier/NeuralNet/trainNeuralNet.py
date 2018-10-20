@@ -59,7 +59,7 @@ clf = MLPClassifier(solver='adam')
 clf.fit(TRANSFORMED_X, y)
 
 #Save the model
-joblib.dump(clf, SAVED_MODEL_NAME)
+#joblib.dump(clf, SAVED_MODEL_NAME)
 
 #Uncomment bottom part to do CV testing.
 #IMPORTANT: DO NOT FIT ANY DATA TO MODEL BEFORE CV TESTING.
