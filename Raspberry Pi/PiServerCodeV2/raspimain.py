@@ -30,7 +30,7 @@ class MachineLearning(threading.Thread):
         self.databuffer = self.buffer.get()
 
         # machine learning will iterate through databuffer and determine action
-        if(self.buffer.getSize >= 100):
+        if(self.buffer.getSize >= 90):
             action = self.processData(self.databuffer)
 
         # process lock required so as to prevent any corruption of any the sent data to server.
@@ -106,7 +106,7 @@ class Receiver(threading.Thread):
         self.energy += newArray[22]
 
         newArray[22] = self.energy
-        self.dataList = newArray[19:22]
+        self.dataList = newArray[19:23]
 
         chkPos = chkPos*2
 
