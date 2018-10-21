@@ -1,4 +1,3 @@
-import ExtractFeatures
 import csv
 import os
 
@@ -12,9 +11,6 @@ def processFiles():
         if (checkIfCSV(file)):
             convertedFile = makeListFromCSV(file, RELEVANT_COLUMNS)
             segmentedData = segmentData(convertedFile, 90, 30) #Window size is 3 secs, sliding window is 1 sec.
-
-            for sample in segmentedData:
-                ExtractFeatures.extractFeatures(sample)
 
             PROCESSED_DATA.extend(segmentedData)
 
