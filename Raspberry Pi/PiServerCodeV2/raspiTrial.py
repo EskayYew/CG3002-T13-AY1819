@@ -4,63 +4,24 @@ import serial
 import socket
 import sys
 import base64
-import NeuralNet_Model
+import DanceClassifierNN from NeuralNet_Model
 from Crypto import Random
 from Crypto.Cipher import AES
-from CircleBuffer import CircleBuffer
-
-# Applying threading on different processes between classes
-# Credits to https://stackoverflow.com/questions/17774768/python-creating-a-shared-variable-between-threads
-# Absolutely necessary if you are doing different processes
+from RingBuffer import RingBuffer
 
 processLock = threading.Lock()
-
-class MachineLearning(threading.Thread):
-    def __init__(self, bufferX):
-        threading.Thread.__init__(self)
-        self.databuffer = []
-        self.buffer = bufferX
-        # self.sender = client
-        self.actionSent = False
-        self.model = DanceClassifierNN()
-
-    def processData(self, bufferY):
-        prediction = self.model.detectMove(bufferY)
-        return prediction[0]
-
-    def processAction(self):
-        action = 'IDLE_A'
-        
-        # machine learning will iterate through databuffer and determine action
-        if(self.buffer.getSize == 90):
-            self.databuffer = self.buffer.get()
-            action = self.processData(self.databuffer)
-
-        # process lock required so as to prevent any corruption of any the sent data to server.
-        processLock.acquire()
-        print(action)
-        if action != 'IDLE_A':
-            # self.sender.sendMessage(action)
-            self.actionSent = True
-        processLock.release()
-
-        if self.actionSent is True:
-            self.buffer.reset()
-            self.databuffer = []
-            self.actionSent = False
-        
-        threading.Timer(2, self.processAction).start()
-
-    # suppose to start after 60 seconds. 5 is dummy value for testing.
-    def run(self):
-        threading.Timer(5, self.processAction).start()
 
 class Receiver(threading.Thread):
     def __init__(self, bufferX, dataList):
         threading.Thread.__init__(self)
 
+        # Machine Learning
+        self.model = DanceClassifierNN()
+        # self.sender = client
+        self.executionTime = 0.0
+
+        # Data Collection
         self.SENSOR_COUNT = 23
-        
         self.energy = 0.000
         self.buffer = bufferX
         self.connection_established = False
@@ -117,10 +78,10 @@ class Receiver(threading.Thread):
         # checksum is at 46th position of bArray
         # if checksum matches, then data is clean and ready to be stored into circular buffer
         if (checksum == arrayChecksum):
+            self.ser.write(b'C')
             if checksum == 0:
                 return None
-
-            self.ser.write(b'C')
+            
             return newArray
         else:
             self.ser.write(b'N')
@@ -181,11 +142,31 @@ class Receiver(threading.Thread):
         else:
             self.read_data()
 
+    def processData(self, feedingBuffer):
+        newPrediction = self.model.detectMove(feedingBuffer)
+        return newPrediction[0]
+
     def receiveLoop(self):
-        # newTime = time.time() + 5
-        self.communicate()
-        # threading.Timer(newTime - time.time(), self.printSelf).start()
-        threading.Timer(0.03, self.receiveLoop).start()
+        self.executionTime = time.time()
+        while True:
+            # Keep collecting data
+            self.communicate()
+            
+            if(self.buffer.getSize() == 90):
+                action = 'IDLE_A'
+                feedingBuffer = self.buffer.get()
+                action = self.processData(feedingBuffer)
+                currentTime = time.time()
+                if((currentTime - executionTime) >= 3.2)
+                    print(action)
+                    if action != 'IDLE_A':
+                        print(action)
+                        # self.sender.sendMessage(action)
+                    self.executionTime = time.time()                    
+
+                self.buffer.reset()
+                print('Buffer is cleared.')
+                print('Current Buffer Size: ', self.buffer.getSize())
 
     def run(self):
         self.receiveLoop()
@@ -224,19 +205,18 @@ class Communication:
         self.client.send(message)    
 
 class Pi:
-    def __init__(self, host, port):
+    # def __init__(self, host, port):
+    def __init__(self):
         self.dataList = [4.65, 2.00, 1.98, 10.00]
         self.threads = []
-        self.buffer = CircleBuffer(90)
+        self.buffer = RingBuffer(90)
         # self.client = Communication(host, port, self.dataList)
 
     def main(self):
         receiver = Receiver(self.buffer, self.dataList)
-        machine = MachineLearning(self.buffer)
-
+        
         self.threads.append(machine)
-        self.threads.append(receiver)
-
+        
         for t in self.threads:
             t.daemon = True
             t.start()
@@ -247,7 +227,8 @@ class Pi:
         print('Program End')
 
 if __name__ == '__main__':
-    host = sys.argv[1]
-    port = sys.argv[2]
-    pi = Pi(host, port)
+    # host = sys.argv[1]
+    # port = sys.argv[2]
+    # pi = Pi(host, port)
+    pi = Pi()
     pi.main()
