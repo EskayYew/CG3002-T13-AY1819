@@ -63,7 +63,7 @@ clf.fit(TRANSFORMED_X, y)
 
 #Uncomment bottom part to do CV testing.
 #IMPORTANT: DO NOT FIT ANY DATA TO MODEL BEFORE CV TESTING.
-
+'''
 from sklearn.pipeline import make_pipeline
 NN_CV = make_pipeline(MinMaxScaler(feature_range=(-1, 1)), MLPClassifier(solver='adam'))
 
@@ -73,4 +73,4 @@ rs = ShuffleSplit(n_splits=30, random_state=0, test_size=0.2)
 from sklearn.model_selection import cross_val_score
 scores = cross_val_score(NN_CV, X, y, cv=10)
 print("Accuracy: %0.5f (+/- %0.5f)" % (scores.mean(), scores.std() * 2))
-
+'''
