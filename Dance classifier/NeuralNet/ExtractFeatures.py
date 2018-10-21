@@ -11,10 +11,25 @@ def extractFeatures(data):
         axis1 = readings[i]
         data.append(extractMin(axis1))
         data.append(extractMax(axis1))
+        data.append(extractRMS(axis1))
         data.append(extractKurtosis(axis1))
         data.append(extractEnergy(axis1))
                         
     return data
+
+#INPUT: 1-D array of data IN THE SAME AXIS
+#OUTPUT: Min value for the given data
+
+def extractRMS(data):
+    squaredSum = 0
+    for value in data:
+        squaredSum += (value**2)
+
+    mean = squaredSum / len(data)
+
+    result = (mean**0.5)
+    return result
+
 
 #INPUT: 1-D array of data IN THE SAME AXIS
 #OUTPUT: Min value for the given data
