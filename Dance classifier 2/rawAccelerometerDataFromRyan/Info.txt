@@ -1,0 +1,5 @@
+Readings are from linear acceleration of onboard accelerometers.
+
+Data is sampled every 50ms.
+
+Dataset by Ryan Teo
