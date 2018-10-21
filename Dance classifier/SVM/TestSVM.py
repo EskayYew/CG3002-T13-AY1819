@@ -5,11 +5,17 @@ SAVED_MODEL_NAME = "SVM"
 
 SAVED_SCALER_NAME = "SVM_Scaler"
 
-WALKING_TEST_FILE = "Walking/WalkingSegmentedTest.csv"
+CHICKEN_FILE = "CHICKENSegmentedTest.csv"
 
-SQUATTING_TEST_FILE = "Squatting/SquattingSegmentedTest.csv"
+IDLE_ACTION_FILE = "IDLE_ACTIONSegmentedTest.csv"
 
-WAVING_TEST_FILE = "Waving/WavingSegmentedTest.csv"
+NUMBER7_FILE = "NUMBER7SegmentedTest.csv"
+
+SIDESTEP_FILE = "SIDESTEPSegmentedTest.csv"
+
+TURNCLAP_FILE = "TURNCLAPSegmentedTest.csv"
+
+WIPERS_FILE = "WIPERSSegmentedTest.csv"
 
 if (False): #Toggle for unseen test data
     WALKING_TEST_FILE = "Walking/WalkingSegmentedUnseenTest.csv"
@@ -18,7 +24,7 @@ if (False): #Toggle for unseen test data
 
     WAVING_TEST_FILE = "Waving/WavingSegmentedUnseenTest.csv"
 
-DATA_FILES = [WALKING_TEST_FILE, SQUATTING_TEST_FILE, WAVING_TEST_FILE]
+DATA_FILES = [CHICKEN_FILE, IDLE_ACTION_FILE, NUMBER7_FILE, SIDESTEP_FILE, TURNCLAP_FILE, WIPERS_FILE]
 
 TEST_DATA = []
 TEST_DATA_LABELS = []
@@ -33,16 +39,16 @@ def loadTestData():
             TEST_DATA.append(row)
             TEST_DATA_LABELS.append(label)
             
-#loadTestData()
+loadTestData()
 
 from sklearn.externals import joblib
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
+import SVM_Model
 
-clf = joblib.load(SAVED_MODEL_NAME)
-scaler = joblib.load(SAVED_SCALER_NAME)
+clf = SVM_Model.DanceClassifierSVM()
 
-'''
+
 PREDICTED_DATA = []
 
 #Calculate accuracy
@@ -50,7 +56,7 @@ TEST_DATA_SIZE = len(TEST_DATA)
 correct = 0
 
 for i in range(TEST_DATA_SIZE):
-    prediction = clf.predict([TEST_DATA[i]])
+    prediction = clf.detectMove(TEST_DATA[i])
     PREDICTED_DATA.append(prediction[0])
     if (prediction == TEST_DATA_LABELS[i]):
         correct +=1
@@ -61,7 +67,7 @@ print()
 #print("Accuracy: " + str(correct/TEST_DATA_SIZE))
 
 from sklearn.metrics import confusion_matrix
-CONFUSION_MATRIX_LABELS = ["Squatt", "Walkin", "Waving"]
+CONFUSION_MATRIX_LABELS = ["CHICKE", "IDLE_A", "NUMBER", "SIDEST", "TURNCL", "WIPERS"]
 #Format is confusion_matrix(y_true, y_pred, labels)
 #Y - Axis is Actual Class, X-Axis is Predicted Class
 print("Confusion Matrix")
@@ -79,4 +85,3 @@ print("Precision:", precision_score(TEST_DATA_LABELS, PREDICTED_DATA, average='w
 from sklearn.metrics import accuracy_score
 accuracy = accuracy_score(TEST_DATA_LABELS, PREDICTED_DATA)
 print("Accuracy:", str(accuracy))
-'''

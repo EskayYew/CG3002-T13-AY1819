@@ -1,0 +1,10 @@
+IMPORTANT: THIS COMMAND MUST BE RUN ELSE THE LIBRARIES WON'T WORK
+
+sudo apt-get install libatlas-base-dev
+
+
+
+The following libraries have to be installed using pip3
+numpy
+scipy
+scikit-learn
