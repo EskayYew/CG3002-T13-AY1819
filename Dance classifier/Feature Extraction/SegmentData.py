@@ -2,7 +2,14 @@ import csv
 import os
 
 ACTION = ""
-RELEVANT_COLUMNS = 19
+
+SAMPLING_RATE = 50 #Sampling frequency in Hz
+WINDOW_DURATION = 3 #Duration of window in seconds
+SLIDING_WINDOW = 1 #Duration of sliding window in seconds
+RELEVANT_COLUMNS = 19 #Number of relevant columns in data
+
+POINTS_PER_WINDOW = WINDOW_DURATION * SAMPLING_RATE
+POINTS_PER_SLIDE = SLIDING_WINDOW * SAMPLING_RATE
 
 def processFiles():
     PROCESSED_DATA = []
@@ -10,7 +17,7 @@ def processFiles():
     for file in listOfFiles:
         if (checkIfCSV(file)):
             convertedFile = makeListFromCSV(file, RELEVANT_COLUMNS)
-            segmentedData = segmentData(convertedFile, 90, 30) #Window size is 3 secs, sliding window is 1 sec.
+            segmentedData = segmentData(convertedFile, POINTS_PER_WINDOW, POINTS_PER_SLIDE) #Window size is 3 secs, sliding window is 1 sec.
 
             PROCESSED_DATA.extend(segmentedData)
 
