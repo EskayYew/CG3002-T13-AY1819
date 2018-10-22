@@ -1,6 +1,0 @@
-Sequence of events from receiving a window of data
-
-1. Take in window. (Assume comms side passes in a correct window size)
-2. Run feature extraction code.
-3. Standardise the [DATA WITH FEATURES] using the scaler for corresponding algorithm.
-4. Feed the standardised data into ML object and get prediction.

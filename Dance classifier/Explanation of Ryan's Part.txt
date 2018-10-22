@@ -1,0 +1,53 @@
+Consolidating multiple CSV files into training data for model.
+This will automatically create sliding windows with the data.
+
+1. Put all the training data CSV files OF THE SAME MOVE into 1 folder. 
+2. Put the SegmentData.py file in that same folder.
+3. In the ACTION variable, enter one of following names (CASE-SENSITIVE)
+	a. CHICKEN
+	b. IDLE_ACTION
+	c. NUMBER7
+	d. TURNCLAP
+	e. SIDESTEP
+	f. WIPERS
+
+4. Tweak the other parameters (e.g. SAMPLING RATE) accordingly. 
+5. Run the SegmentData.py file.
+6. Copy the created CSV file into a "Training" folder.
+
+
+Training the model
+
+For this example, we shall use SVM as an example.
+
+1. Ensure that the following files/folders are in the same folder:
+	a. trainSVM.py
+	b. ExtractFeatures.py
+	c. ReadCSVToList.py
+	d. "Training" folder with all the segmented CSV files
+
+2. Open the trainSVM.py file. Ensure that the filepaths are correct.
+2a. IF YOU CHANGE THE FILEPATH, YOU MUST CHANGE THE loadData() function. **VERY IMPORTANT (ESPECIALLY FOR WEEK 10)**
+
+Specifically, this line: "label = files[9:15] #Cut short filename"
+
+Make changes such that the label names are identical as listed in the README file in the Deployment folder.
+
+
+3. To save the "Scaler", uncomment the following line: #joblib.dump(scaler, SAVED_SCALER_NAME).
+
+4. To save the trained model, uncomment the following line: #joblib.dump(clf, SAVED_MODEL_NAME).
+
+5. To conduct CV testing, uncomment the block of code near the bottom of the file.
+
+6. The model used for CV testing has the variable name "SVM_CV". As per warning, do not fit any data to this model.
+
+7. To switch between random CV testing and K-fold CV, change the "cv" variable in the following line:
+
+scores = cross_val_score(SVM_CV, X, y, cv=rs)
+
+Where rs = random shuffle cv, Any positive integer, N = K-Fold CV, where K will be determined by N.
+
+8. **VERY IMPORTANT** THE SVM_CV MODEL WILL NOT BE SAVED. IT IS MERELY A TOOL TO ESTIMATE PERFORMANCE OF OUR TRAINED MODEL.
+
+Instructions for NeuralNet is similar. Adapt this guide accordingly.
