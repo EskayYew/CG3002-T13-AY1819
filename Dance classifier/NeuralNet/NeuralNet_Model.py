@@ -8,10 +8,11 @@ from sklearn.preprocessing import MinMaxScaler
 SAVED_MODEL_NAME = "NeuralNet"
 SAVED_SCALER_NAME = "NeuralNet_Scaler"
 
-SAMPLES = 90
+SAMPLING_RATE = 50 #Sampling frequency in Hz
+WINDOW_DURATION = 3 #Duration of window in seconds
+SAMPLES = SAMPLING_RATE * WINDOW_DURATION
 FEATURES = 19
 WINDOW_SIZE = SAMPLES * FEATURES
-
 
 class DanceClassifierNN:
     def __init__(self):
