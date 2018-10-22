@@ -22,7 +22,7 @@ class DanceClassifierSVM:
     def detectMove(self, window):
         if (len(window) != WINDOW_SIZE):
             print("ERROR: Window size does not match!")
-            print(len(window))
+            print("Expected window size is " + str(WINDOW_SIZE) + ". Input size: " + str(len(window)))
             return None
         
         dataToProcess = window.copy()
