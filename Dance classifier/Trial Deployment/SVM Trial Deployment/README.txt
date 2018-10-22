@@ -15,7 +15,7 @@ HOW TO USE
 2. Import the Model.py file and instantiate the model object.
 	e.g. model = DanceClassifierNN()
 
-3. To get a prediction, call the detectMove(window) function. It takes in a list of data.
+3. To get a prediction, call the detectMove(window) function. It takes in a 1-D list of data.
 	a. If the window size is incorrect, it will print an error message and return None.
 	b. Otherwise, it will return a prediction.
 
