@@ -69,9 +69,9 @@ from sklearn.pipeline import make_pipeline
 SVM_CV = make_pipeline(StandardScaler(), SVC())
 
 from sklearn.model_selection import ShuffleSplit
-rs = ShuffleSplit(n_splits=30, random_state=0, test_size=0.2)
+rs = ShuffleSplit(n_splits=30, random_state=0, test_size=0.25)
 
 from sklearn.model_selection import cross_val_score
-scores = cross_val_score(SVM_CV, X, y, cv=10)
+scores = cross_val_score(SVM_CV, X, y, cv=rs)
 print("Accuracy: %0.5f (+/- %0.5f)" % (scores.mean(), scores.std() * 2))
 '''
