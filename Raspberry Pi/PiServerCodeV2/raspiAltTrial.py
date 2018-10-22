@@ -4,7 +4,7 @@ import serial
 import socket
 import sys
 import base64
-import DanceClassifierNN from NeuralNet_Model
+from NeuralNet_Model import DanceClassifierNN
 from Crypto import Random
 from Crypto.Cipher import AES
 from RingBuffer import RingBuffer
@@ -45,8 +45,9 @@ class Communication:
 class Pi:
     # def __init__(self, host, port):
     def __init__(self):
+        self.WINDOWSIZE = 100
         self.dataList = [4.65, 2.00, 1.98, 10.00]
-        self.buffer = RingBuffer(90)
+        self.buffer = RingBuffer(self.WINDOWSIZE)
         # self.client = Communication(host, port, self.dataList)
         
         # Machine Learning
@@ -113,7 +114,7 @@ class Pi:
             if checksum == 0:
                 return None
             
-            return newArray
+            return newArray[0:19]
         else:
             self.ser.write(b'N')
             
@@ -156,9 +157,7 @@ class Pi:
         self.data_buff = self.checkByteArray(self.byteArray)
         
         if(self.data_buff is not None):
-            processLock.acquire()
             self.buffer.append(self.data_buff)
-            processLock.release()
             
         if(self.buffer.getSize() % 10 == 0):
             print(self.buffer.getSize())
@@ -184,12 +183,15 @@ class Pi:
                 # Keep collecting data
                 self.communicate()
                 
-                if(self.buffer.getSize() == 90):
+                if(self.buffer.getSize() == self.WINDOWSIZE):
                     action = 'IDLE_A'
-                    feedingBuffer = self.buffer.get()
+                    tempBuffer = self.buffer.get()
+                    feedingBuffer = []
+                    for i in range(0, self.WINDOWSIZE):
+                        feedingBuffer += tempBuffer[i]
                     action = self.processData(feedingBuffer)
                     currentTime = time.time()
-                    if((currentTime - executionTime) >= 3.2)
+                    if((currentTime - self.executionTime) >= 3.2):
                         print(action)
                         if action != 'IDLE_A':
                             print(action)

@@ -4,7 +4,7 @@ import serial
 import socket
 import sys
 import base64
-import DanceClassifierNN from NeuralNet_Model
+from NeuralNet_Model import DanceClassifierNN 
 from Crypto import Random
 from Crypto.Cipher import AES
 from RingBuffer import RingBuffer
@@ -82,7 +82,7 @@ class Receiver(threading.Thread):
             if checksum == 0:
                 return None
             
-            return newArray
+            return newArray[0:19]
         else:
             self.ser.write(b'N')
             
@@ -144,6 +144,7 @@ class Receiver(threading.Thread):
 
     def processData(self, feedingBuffer):
         newPrediction = self.model.detectMove(feedingBuffer)
+        print(newPrediction)
         return newPrediction[0]
 
     def receiveLoop(self):
@@ -154,10 +155,13 @@ class Receiver(threading.Thread):
             
             if(self.buffer.getSize() == 90):
                 action = 'IDLE_A'
-                feedingBuffer = self.buffer.get()
+                tempBuffer = self.buffer.get()
+                feedingBuffer = []
+                for i in range(0,90):
+                    feedingBuffer += tempBuffer[i]
                 action = self.processData(feedingBuffer)
                 currentTime = time.time()
-                if((currentTime - executionTime) >= 3.2)
+                if((currentTime - self.executionTime) >= 3.2):
                     print(action)
                     if action != 'IDLE_A':
                         print(action)
@@ -215,7 +219,7 @@ class Pi:
     def main(self):
         receiver = Receiver(self.buffer, self.dataList)
         
-        self.threads.append(machine)
+        self.threads.append(receiver)
         
         for t in self.threads:
             t.daemon = True
