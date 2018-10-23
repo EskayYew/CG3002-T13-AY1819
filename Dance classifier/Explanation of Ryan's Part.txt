@@ -26,12 +26,10 @@ For this example, we shall use SVM as an example.
 	c. ReadCSVToList.py
 	d. "Training" folder with all the segmented CSV files
 
-2. Open the trainSVM.py file. Ensure that the filepaths are correct.
-2a. IF YOU CHANGE THE FILEPATH, YOU MUST CHANGE THE loadData() function. **VERY IMPORTANT (ESPECIALLY FOR WEEK 10)**
+2. Open the trainSVM.py file. Ensure that the filepaths and labels are correct.
+2a. You may change the labels and filepaths accordingly.
 
-Specifically, this line: "label = files[9:15] #Cut short filename"
-
-Make changes such that the label names are identical as listed in the README file in the Deployment folder.
+Ensure that the label names are identical as listed in the README file in the Deployment folder.
 
 
 3. To save the "Scaler", uncomment the following line: #joblib.dump(scaler, SAVED_SCALER_NAME).
