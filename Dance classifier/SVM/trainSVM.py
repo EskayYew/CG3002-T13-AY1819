@@ -54,9 +54,6 @@ def loadData():
 
 loadData()
 
-#print(TRAINING_LABELS)
-#print(TEST_DATA_LABELS)
-
 X = np.array(FINAL_TRAINING_DATA)
 y = np.array(TRAINING_LABELS)
 
@@ -79,14 +76,14 @@ clf.fit(TRANSFORMED_X, y)
 
 #Uncomment bottom part to do CV testing.
 #IMPORTANT: DO NOT FIT ANY DATA TO MODEL BEFORE CV TESTING.
-
+'''
 from sklearn.pipeline import make_pipeline
 SVM_CV = make_pipeline(StandardScaler(), SVC())
 
 from sklearn.model_selection import ShuffleSplit
-rs = ShuffleSplit(n_splits=30, random_state=0, test_size=0.25)
+rs = ShuffleSplit(n_splits=30, random_state=0, test_size=0.20)
 
 from sklearn.model_selection import cross_val_score
 scores = cross_val_score(SVM_CV, X, y, cv=rs)
 print("Accuracy: %0.5f (+/- %0.5f)" % (scores.mean(), scores.std() * 2))
-
+'''
