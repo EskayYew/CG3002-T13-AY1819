@@ -7,40 +7,52 @@ SAVED_MODEL_NAME = "NeuralNet"
 SAVED_SCALER_NAME = "NeuralNet_Scaler"
 
 CHICKEN_FILE = "Training/CHICKENSegmented.csv"
+CHICKEN_LABEL = "CHICKE"
+CHICKEN_DATA = (CHICKEN_FILE, CHICKEN_LABEL)
 
-IDLE_ACTION_FILE = "Training/IDLE_ACTIONSegmented.csv"
+IDLE_FILE = "Training/IDLE_ACTIONSegmented.csv"
+IDLE_LABEL = "IDLE_A"
+IDLE_DATA = (IDLE_FILE, IDLE_LABEL)
 
 NUMBER7_FILE = "Training/NUMBER7Segmented.csv"
+NUMBER7_LABEL = "NUMBER"
+NUMBER7_DATA = (NUMBER7_FILE, NUMBER7_LABEL)
 
 SIDESTEP_FILE = "Training/SIDESTEPSegmented.csv"
+SIDESTEP_LABEL = "SIDEST"
+SIDESTEP_DATA = (SIDESTEP_FILE, SIDESTEP_LABEL)
 
 TURNCLAP_FILE = "Training/TURNCLAPSegmented.csv"
+TURNCLAP_LABEL = "TURNCL"
+TURNCLAP_DATA = (TURNCLAP_FILE, TURNCLAP_LABEL)
 
 WIPERS_FILE = "Training/WIPERSSegmented.csv"
+WIPERS_LABEL = "WIPERS"
+WIPERS_DATA = (WIPERS_FILE, WIPERS_LABEL)
 
-DATA_FILES = [CHICKEN_FILE, IDLE_ACTION_FILE, NUMBER7_FILE, SIDESTEP_FILE, TURNCLAP_FILE, WIPERS_FILE]
+DATA_FILES = [CHICKEN_DATA, IDLE_DATA, NUMBER7_DATA, SIDESTEP_DATA, TURNCLAP_DATA, WIPERS_DATA]
 
 TRAINING_LABELS = []
 FINAL_TRAINING_DATA = []
 
-TEST_DATA = []
-TEST_DATA_LABELS = []
-
 def loadData():
-    for files in DATA_FILES:
+    print("Labels used are:")
+    for training_file in DATA_FILES:
+        filename = training_file[0]
+        label = training_file[1]
         counter = 0
-        temp_data = ReadCSVToList.convertFileToList(files)
-        label = files[9:15] #Cut short filename
+        temp_data = ReadCSVToList.convertFileToList(filename)
+        print(label)
         
         for row in temp_data:
             ExtractFeatures.extractFeatures(row)
             FINAL_TRAINING_DATA.append(row)
             TRAINING_LABELS.append(label)
+    
+    print("Done loading training data!\n")
+    return
 
 loadData()
-
-#print(TRAINING_LABELS)
-#print(TEST_DATA_LABELS)
 
 X = np.array(FINAL_TRAINING_DATA)
 y = np.array(TRAINING_LABELS)
@@ -68,7 +80,7 @@ from sklearn.pipeline import make_pipeline
 NN_CV = make_pipeline(MinMaxScaler(feature_range=(-1, 1)), MLPClassifier(solver='adam'))
 
 from sklearn.model_selection import ShuffleSplit
-rs = ShuffleSplit(n_splits=30, random_state=0, test_size=0.25)
+rs = ShuffleSplit(n_splits=30, random_state=0, test_size=0.20)
 
 from sklearn.model_selection import cross_val_score
 scores = cross_val_score(NN_CV, X, y, cv=rs)
