@@ -2,10 +2,6 @@ import ExtractFeatures
 import ReadCSVToList
 import numpy as np
 
-SAVE_FLAG = False #Change to true to save the model.
-SAVED_MODEL_NAME = "SVM"
-SAVED_SCALER_NAME = "SVM_Scaler"
-
 CHICKEN_FILE = "Training/CHICKENSegmented.csv"
 CHICKEN_LABEL = "CHICKE"
 CHICKEN_DATA = (CHICKEN_FILE, CHICKEN_LABEL)
@@ -61,15 +57,17 @@ from sklearn.preprocessing import StandardScaler
 scaler = StandardScaler()
 TRANSFORMED_X = scaler.fit_transform(X)
 
-#For saving the model and scaler.
-from sklearn.externals import joblib
-#Train the SVM
 from sklearn.svm import SVC
-clf = SVC()
-clf.fit(TRANSFORMED_X, y)
 
-#Save the scaler and model
-if (SAVE_FLAG):
-    joblib.dump(scaler, SAVED_SCALER_NAME)
-    joblib.dump(clf, SAVED_MODEL_NAME)
-    print("Scaler and Model saved!")
+#IMPORTANT: DO NOT FIT ANY DATA TO MODEL BEFORE CV TESTING.
+
+from sklearn.pipeline import make_pipeline
+SVM_CV = make_pipeline(StandardScaler(), SVC())
+
+from sklearn.model_selection import ShuffleSplit
+rs = ShuffleSplit(n_splits=30, random_state=0, test_size=0.20)
+
+from sklearn.model_selection import cross_val_score
+scores = cross_val_score(SVM_CV, X, y, cv=rs)
+print("Accuracy: %0.5f (+/- %0.5f)" % (scores.mean(), scores.std() * 2))
+
