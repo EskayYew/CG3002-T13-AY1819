@@ -59,7 +59,6 @@ class Pi:
         # Data Collection
         self.SENSOR_COUNT = 23
         self.energy = 0.000
-        self.power = 0.00
         self.connection_established = False
 
         # Setup serial port
@@ -102,10 +101,7 @@ class Pi:
             
             newArray.append(combinedValue)
 
-        self.power += newArray[21]
         self.energy += newArray[22]
-
-        newArray[21] = se;f.power
         newArray[22] = self.energy
         self.dataList = newArray[19:23]
 
@@ -166,7 +162,7 @@ class Pi:
         if(self.data_buff is not None):
             self.buffer.append(self.data_buff)
             
-        if(self.buffer.getSize() % 10 == 0):
+        if(self.buffer.getSize() % 30 == 0):
             print(self.buffer.getSize())
 
         self.byteArray = []
@@ -198,7 +194,7 @@ class Pi:
                         feedingBuffer += tempBuffer[i]
                     action = self.processData(feedingBuffer)
                     currentTime = time.time()
-                    if((currentTime - self.executionTime) >= 10.0):
+                    if((currentTime - self.executionTime) >= 4.0):
                         print(action)
                         if action != 'IDLE_A':
                             print(action)
@@ -206,8 +202,8 @@ class Pi:
                         self.executionTime = currentTime                   
 
                     self.buffer.reset()
-                    print('Buffer is cleared.')
-                    print('Current Buffer Size: ', self.buffer.getSize())
+                    # print('Buffer is cleared.')
+                    
 
         except KeyboardInterrupt:
             print('Program End')
