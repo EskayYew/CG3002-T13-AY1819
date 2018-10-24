@@ -62,12 +62,12 @@ from sklearn.svm import SVC
 #IMPORTANT: DO NOT FIT ANY DATA TO MODEL BEFORE CV TESTING.
 
 from sklearn.pipeline import make_pipeline
-SVM_CV = make_pipeline(StandardScaler(), SVC())
+SVM_CV = make_pipeline(StandardScaler(), SVC(decision_function_shape='ovo'))
 
 from sklearn.model_selection import ShuffleSplit
-rs = ShuffleSplit(n_splits=30, random_state=0, test_size=0.20)
+rs = ShuffleSplit(n_splits=30, random_state=0, test_size=0.25)
 
 from sklearn.model_selection import cross_val_score
-scores = cross_val_score(SVM_CV, X, y, cv=rs)
+scores = cross_val_score(SVM_CV, X, y, cv=10)
 print("Accuracy: %0.5f (+/- %0.5f)" % (scores.mean(), scores.std() * 2))
 

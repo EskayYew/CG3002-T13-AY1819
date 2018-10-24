@@ -2,7 +2,7 @@ import ExtractFeatures
 import ReadCSVToList
 import numpy as np
 
-SAVE_FLAG = False #Change to true to save the model.
+SAVE_FLAG = True #Change to true to save the model.
 SAVED_MODEL_NAME = "SVM"
 SAVED_SCALER_NAME = "SVM_Scaler"
 
@@ -65,7 +65,7 @@ TRANSFORMED_X = scaler.fit_transform(X)
 from sklearn.externals import joblib
 #Train the SVM
 from sklearn.svm import SVC
-clf = SVC()
+clf = SVC(decision_function_shape='ovo')
 clf.fit(TRANSFORMED_X, y)
 
 #Save the scaler and model
