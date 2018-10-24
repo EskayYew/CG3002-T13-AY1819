@@ -2,7 +2,7 @@ import ExtractFeatures
 import ReadCSVToList
 import numpy as np
 
-SAVE_FLAG = True #Change to true to save the model.
+SAVE_FLAG = False #Change to true to save the model.
 SAVED_MODEL_NAME = "SVM"
 SAVED_SCALER_NAME = "SVM_Scaler"
 
