@@ -1,0 +1,3 @@
+Version 0.5
+- Initial tracking of deployment models.
+- Contains basic training data of 5 people for the first 5 moves (Chicken, Number 7, Sidestep, Turnclap, Wipers) and Idle move.

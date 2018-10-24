@@ -1,0 +1,4 @@
+Version 1.0 of Deployment.
+- Initial tracking of deployment models.
+- Contains basic training data of 5 people for the first 5 moves (Chicken, Number 7, Sidestep, Turnclap, Wipers) and Idle move.
+- Deployment Version 1.0 is exactly the same as Trial Deployment Version 0.5.

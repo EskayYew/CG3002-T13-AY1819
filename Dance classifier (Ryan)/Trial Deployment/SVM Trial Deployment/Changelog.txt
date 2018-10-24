@@ -1,0 +1,6 @@
+Version 0.6
+- Minor update on SVM model. SHOULD HAVE NO EFFECT ON PERFORMANCE.
+
+Version 0.5
+- Initial tracking of deployment models.
+- Contains basic training data of 5 people for the first 5 moves (Chicken, Number 7, Sidestep, Turnclap, Wipers) and Idle move.
