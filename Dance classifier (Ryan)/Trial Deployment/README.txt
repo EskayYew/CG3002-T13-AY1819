@@ -1,3 +1,5 @@
+THIS IS FOR TRIAL/TESTING ONLY!
+
 IMPORTANT THINGS TO TAKE NOTE
 
 1. Sensors are to be read at 50Hz. 
