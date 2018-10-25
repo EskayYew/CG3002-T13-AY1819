@@ -32,7 +32,7 @@ void tcaselect(uint8_t i);
 //////////////////////////////////////////////
 
 // Constants for MPU Reading
-const int FLEXPIN = 11;
+const int FLEXPIN = 3;
 const int MPU = 0x68;
 
 // Constants for power reading
@@ -52,21 +52,20 @@ cbuffer_t msg_buffer;
 // Semaphore to control access to main message buffer
 SemaphoreHandle_t xMsgBuffSemaphore;
 
+// Connection status variables
+bool connection_established = false;
+
 // Global Variables for power reading
 int16_t power_data[4];                // Power data to be sent as 16 bit integers
 uint8_t sample_count = 0;             // Current sample number
-int16_t sensorValueA0 = 0;            // Variable to store value from analog read
-int16_t sensorValueA1 = 0;            // Variable to store value from analog read/sum of samples taken
+float sensorValueA0 = 0;              // Variable to store value from analog read
+float sensorValueA1 = 0;              // Variable to store value from analog read/sum of samples taken
 float voltageOut = 0.0;               // Calculated Voltage Out value, Vout = Vin * R2/(R1+R2)
 float voltageIn = 0.0;                // Calculated Voltage In Source value
 float current = 0.0;                  // Calculated current value
-// float totalCurrent = 0.0;             // Calculated Total current value
-// float avgAmp = 0.0;                   // Calculated avgAmp
-// float ampHr = 0.0;                    // Calculated amp-hour
 float power = 0.0;                    // Calculated power value
-// float lastPower = 0.0;                // Previous power value
 float energy = 0.0;                   // Calculated energy value
-// float elapsedTime = 0.0;
+float elapsedTime = 0.0;
 
 void setup() {
   //Initialize mpu
@@ -117,7 +116,7 @@ void setup() {
     (const portCHAR *) "SendMessage",
     STACK_SIZE,
     NULL,
-    1,
+    2,
     NULL
     );
     
@@ -126,7 +125,7 @@ void setup() {
     (const portCHAR *) "ReadData",
     STACK_SIZE,
     NULL,
-    2,
+    1,
     NULL
     );
 }
@@ -135,14 +134,6 @@ void setup() {
 //    HELPER FUNCTIONS                      //
 //////////////////////////////////////////////
 
-/*
- * Break 16 bit data into 2 8 bit parts, less significant is sent first
- * e.g data = 0xABCD - CD is transmitted first, followed by AB
- */
- void send_16bit(uint16_t data) {
-  Serial1.write(data);
-  Serial1.write(data >> 8);
- }
 /*
  * Select which channelt to read the data from
  */
@@ -159,32 +150,42 @@ void tcaselect(uint8_t i) {
 */
 void establish_connection() {
   uint8_t received_byte = NONE;
-  uint16_t resend_timer = 0;
+  unsigned long start_time = 0;
+  unsigned long current_time = 0;
   Serial1.write(SYNC);
-  if (USB_DEBUG_MODE) {
-    Serial.println(SYNC);
-  }
+//  if (USB_DEBUG_MODE) {
+//    Serial.println("SENT SYNC");
+//  }
+
+  start_time = millis();
   while (received_byte != ACK) {
     // Wait until response received from RPi
-    // TODO - add time out
-    while(!Serial.available()) {
-      if (resend_timer == 1000) {
-        Serial1.write(SYNC); 
-        resend_timer = 0;       
-      } else {
-        resend_timer++;
+    while(!Serial1.available()) {
+      current_time = millis();
+      if (current_time - start_time >= 2000) {
+        Serial1.write(SYNC);
+        if (USB_DEBUG_MODE) {
+          Serial.println("SENT SYNC");
+        }
+        start_time = millis();       
       }
-    }
+    };
     // -48 since serial monitor/pi sends ascii characters
-    received_byte = Serial1.read() - 48;
-    if (USB_DEBUG_MODE) {
-      Serial.println(received_byte);
-    }
+    received_byte = Serial1.read();
   }
   Serial1.write(SYNC_ACK);
+  connection_established = true;
   if (USB_DEBUG_MODE) {
-    Serial.println(SYNC_ACK);
-  } 
+    Serial.println("CONNECTION ESTABLISHED");
+  }
+
+  //Flush buffer
+   if ( xSemaphoreTake( xMsgBuffSemaphore, ( TickType_t ) 5 ) == pdTRUE ) { 
+     msg_buffer.strt = 0;
+     msg_buffer.bck = 0;
+     msg_buffer.buff_size_remaining = RAW_BUFF_SIZE;
+     xSemaphoreGive( xMsgBuffSemaphore );
+   }
 }
 
 /* 
@@ -193,24 +194,45 @@ void establish_connection() {
 void transmit_data_from_buffer() {
 
   uint8_t received_byte = NONE;
+  unsigned long start_time = 0;
+  unsigned long current_time = 0;
   // Transmit data
-  if ( xSemaphoreTake( xMsgBuffSemaphore, ( TickType_t ) 5 ) == pdTRUE ) {
-    uint8_t *current_msg_ptr =  msg_buffer.data_buffer[msg_buffer.strt];
-    while (received_byte != ACK) {
-      //Transmit data
-      Serial1.write(current_msg_ptr, MSG_LEN);
-      
-      // Wait for reponse from RPi
-      while(!Serial1.available()) {};
-      received_byte = Serial1.read() - 48;
+  if (msg_buffer.buff_size_remaining < RAW_BUFF_SIZE) {
+    if ( xSemaphoreTake( xMsgBuffSemaphore, ( TickType_t ) 5 ) == pdTRUE ) {
+      uint8_t *current_msg_ptr =  msg_buffer.data_buffer[msg_buffer.strt];
+      while (received_byte != CHK) {
+        //Transmit data
+        Serial1.write(current_msg_ptr, MSG_LEN);
+        if (USB_DEBUG_MODE) {
+          Serial.println("MESSAGED SENT");
+        } 
+        // Wait for response from RPi
+        start_time = millis();
+        while(!Serial1.available()) {
+          current_time = millis();
+          if (current_time - start_time >= 2000) {
+            if (USB_DEBUG_MODE) {
+              Serial.println("CONNECTION LOST");
+            } 
+            connection_established = false;
+            received_byte = NONE;
+            xSemaphoreGive( xMsgBuffSemaphore );
+            return;
+          }
+        };
+        received_byte = Serial1.read();
+      }
+      if (USB_DEBUG_MODE) {
+        Serial.println("MESSAGED ACK");
+      }
+      //update buffer state and allow current data to be overwritten
+      msg_buffer.buff_size_remaining++;
+      msg_buffer.strt++;
+      if (msg_buffer.strt >= RAW_BUFF_SIZE) {
+            msg_buffer.strt = 0;
+      }
+      xSemaphoreGive( xMsgBuffSemaphore );
     }
-    //update buffer state and allow current data to be overwritten
-    msg_buffer.buff_size_remaining++;
-    msg_buffer.strt++;
-    if (msg_buffer.strt >= RAW_BUFF_SIZE) {
-          msg_buffer.strt = 0;
-    }
-    xSemaphoreGive( xMsgBuffSemaphore );
   }
 }
 
@@ -221,19 +243,20 @@ void terminate_connection(){
   uint8_t received_byte = NONE;
   Serial1.write(FIN);
   if (USB_DEBUG_MODE) {
-    Serial.println(FIN);
+    Serial.println("REQUEST TERMINATION");
   }
   while (received_byte != FIN) {
     // Wait until response received from RPi
     // TODO - add time out
     while(!Serial1.available()) {};
-    received_byte = Serial1.read() - 48;
+    received_byte = Serial1.read();
   }
   Serial1.write(ACK);
   if (USB_DEBUG_MODE) {
-    Serial.println(ACK);
+    Serial.println("CONNECTION ENDED");
   }
   received_byte = NONE;
+  connection_established = false;
 }
 
 /*
@@ -264,22 +287,21 @@ void update_power_readings() {
       // determine the current flowing through RS. Assume RL = 10k
       // Is = (Vout x 1k) / (RS x RL)
       current = (sensorValueA0 / (RS * 10.0));
-      //totalCurrent = (totalCurrent + current * 1000) ;
-      //avgAmp = totalCurrent / elapsedTime;
-      //ampHr = (avgAmp * elapsedTime) / 3600; //mAh
       
       // Power value
       power = current * voltageIn;
       
       // Energy value
       if (power != 0) {
+        elapsedTime = millis() / 1000.0;
         energy = (power * elapsedTime) / 3600;
       }
 
-      power_data[0] = current * 100;
-      power_data[1] = power * 100;
-      power_data[2] = energy * 100;
-      power_data[3] = voltageIn * 100;
+      power_data[0] = voltageIn * 100;
+      power_data[1] = current * 100;
+      power_data[2] = power * 100;
+      power_data[3] = energy * 1000;
+
 
       sample_count = 0;
       sensorValueA0 = 0;
@@ -299,9 +321,16 @@ void TaskSendMessage(void *pvParameters) {
   xLastWakeTime = xTaskGetTickCount();
   
   for(;;) {
-    establish_connection();
-    transmit_data_from_buffer();
-    terminate_connection();
+    if (!connection_established) {
+      establish_connection();
+      //transmit_data_from_buffer();
+    } else {
+      transmit_data_from_buffer();
+//      if (messages_sent >= RE_CONNECT_COUNT) {
+//        terminate_connection();
+//      }
+    }
+
     //Sleep until next scheduled time
     vTaskDelayUntil(&xLastWakeTime, xDelay);
   }
@@ -312,92 +341,74 @@ void TaskReadData(void *pvParameters) {
   TickType_t xLastWakeTime;
   xLastWakeTime = xTaskGetTickCount();
   for(;;) {
-    update_power_readings(); //-METHOD 1
-    if ( xSemaphoreTake( xMsgBuffSemaphore, ( TickType_t ) 5 ) == pdTRUE ) {
-      if (msg_buffer.buff_size_remaining > 0) {
-        uint8_t *current_msg_ptr =  msg_buffer.data_buffer[msg_buffer.bck];
-        uint8_t checksum = 0;
-        int16_t msg_buffer_index = 0;
-        for (int i = 0; i < MPU_COUNT; i++) {
+    update_power_readings();
+    if ( xSemaphoreTake( xMsgBuffSemaphore, ( TickType_t ) 5 ) == pdTRUE ) {  
+      uint8_t *current_msg_ptr =  msg_buffer.data_buffer[msg_buffer.bck];
+      uint8_t checksum = 0;
+      int16_t msg_buffer_index = 0;
+      for (int i = 0; i < MPU_COUNT; i++) {
+        if (i == 2 ) {
+          tcaselect(3);
+        } else {
           tcaselect(i);
-          Wire.beginTransmission(MPU);
-          Wire.write(0x3B);  
-          Wire.endTransmission(false);
-          Wire.requestFrom(MPU,12,true);  
+        }
+        Wire.beginTransmission(MPU);
+        Wire.write(0x3B);  
+        Wire.endTransmission(false);
+        Wire.requestFrom(MPU,12,true);  
 
-          /* SENSOR IDs
-           * j = 0 - 2 : AcX,Y,Z
-           * j = 3     : Tmp
-           * j = 4 - 6 : GyX,Y,Z
-           */
-            for (int j = 0; j < SENSOR_PER_MPU; j++) {
-              // int16_t data = j + 1;
-              int16_t data = Wire.read()<<8|Wire.read();
-              if (j != 3) {
-                uint8_t lsb = (data & 0x00FF);
-                uint8_t msb = (data & 0xFF00) >> 8;
-                //LSB is sent first, followed by MSB
-                checksum ^= lsb;
-                current_msg_ptr[msg_buffer_index++] = lsb;
-                checksum ^= msb;
-                current_msg_ptr[msg_buffer_index++] = msb;
+        /* SENSOR IDs
+         * j = 0 - 2 : AcX,Y,Z
+         * j = 3     : Tmp
+         * j = 4 - 6 : GyX,Y,Z
+         */
+          for (int j = 0; j < SENSOR_PER_MPU; j++) {
+            // int16_t data = j + 1;
+            int16_t data = Wire.read()<<8|Wire.read();
+            if (j != 3) {
+              if (j <= 2) {
+                data = data / 6144;
+              } else {
+                data = data / 131;
               }
+            uint8_t lsb = (data & 0x00FF);
+            uint8_t msb = (data & 0xFF00) >> 8;
+            //LSB is sent first, followed by MSB
+            checksum ^= lsb;
+            current_msg_ptr[msg_buffer_index++] = lsb;
+            checksum ^= msb;
+            current_msg_ptr[msg_buffer_index++] = msb;
             }
           }
-        // int16_t Flex = 27;
-        int16_t Flex = digitalRead(FLEXPIN);
-        uint8_t lsb = (Flex & 0x00FF);
-        uint8_t msb = (Flex & 0xFF00) >> 8;
+        }
+      // int16_t Flex = 27;
+      int16_t Flex = digitalRead(FLEXPIN);
+      uint8_t lsb = (Flex & 0x00FF);
+      uint8_t msb = (Flex & 0xFF00) >> 8;
+      checksum ^= lsb;
+      current_msg_ptr[msg_buffer_index++] = lsb;
+      checksum ^= msb;
+      current_msg_ptr[msg_buffer_index++] = msb;
+
+      //Get power readings
+      for(int k = 0; k < 4; k++) {
+        int16_t data = power_data[k];
+        uint8_t lsb = (data & 0x00FF);
+        uint8_t msb = (data & 0xFF00) >> 8;
         checksum ^= lsb;
         current_msg_ptr[msg_buffer_index++] = lsb;
         checksum ^= msb;
         current_msg_ptr[msg_buffer_index++] = msb;
+      }
 
-        //Get power readings - METHOD 1
-        for(int k = 0; k < 4; k++) {
-          int16_t data = power_data[k];
-          uint8_t lsb = (data & 0x00FF);
-          uint8_t msb = (data & 0xFF00) >> 8;
-          checksum ^= lsb;
-          current_msg_ptr[msg_buffer_index++] = lsb;
-          checksum ^= msb;
-          current_msg_ptr[msg_buffer_index++] = msb;
-        }
-        
-        //METHOD 2
-        // if (sample_count < NUM_SAMPLES) {
-        //   sensorValueA0 += analogRead(SENSOR_PIN_A0);
-        //   sensorValueA1 += analogRead(SENSOR_PIN_A1);
-        //   sample_count++;
-        // } else {
-        //   // Store value of sensor A0
-        //   uint8_t lsb = (sensorValueA0 & 0x00FF);
-        //   uint8_t msb = (sensorValueA0 & 0xFF00) >> 8;
-        //   //LSB is sent first, followed by MSB
-        //   checksum ^= lsb;
-        //   current_msg_ptr[msg_buffer_index++] = lsb;
-        //   checksum ^= msb;
-        //   current_msg_ptr[msg_buffer_index++] = msb;
-
-        //   // Store value of sensor A1
-        //   uint8_t lsb = (sensorValueA1 & 0x00FF);
-        //   uint8_t msb = (sensorValueA1 & 0xFF00) >> 8;
-        //   //LSB is sent first, followed by MSB
-        //   checksum ^= lsb;
-        //   current_msg_ptr[msg_buffer_index++] = lsb;
-        //   checksum ^= msb;
-        //   current_msg_ptr[msg_buffer_index++] = msb;
-
-        // }
-
-
-        current_msg_ptr[msg_buffer_index] = checksum;
-        //update buffer state and allow current data to be overwritten
+      current_msg_ptr[msg_buffer_index] = checksum;
+      //update buffer state and allow current data to be overwritten
+      if (msg_buffer.buff_size_remaining > 0) {
         msg_buffer.buff_size_remaining--;
-        msg_buffer.bck++;
-        if (msg_buffer.bck >= RAW_BUFF_SIZE) {
-          msg_buffer.bck = 0;
-        }
+      }
+      msg_buffer.bck++;
+      if (msg_buffer.bck >= RAW_BUFF_SIZE) {
+        msg_buffer.bck = 0;
       }
       xSemaphoreGive( xMsgBuffSemaphore );
     }
