@@ -7,7 +7,7 @@ from sklearn.externals import joblib
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix
 from scipy.stats import kurtosis
-from scipy.signal import welch
+from sklearn.preprocessing import minmax_scale
 
 # Note: 1. Dont use max, min it 0.9995651386120674 0.9993674698795181
 # 2. # bigger segment, much higher accuracy. bigger window, less accuracy: wrong, 30 is the smallest
@@ -78,46 +78,46 @@ for i in range(0, 91):
 
 whole_data = [whole_data]
 
-for filename in glob.iglob('../../rawAccelerometerData/Wipers/*.csv', recursive=True):
-    train_data = pd.read_csv(filename).values
+for filename in glob.iglob('../../ClassifiedTrainingSet/Wipers/*.csv', recursive=True):
+    train_data = minmax_scale(pd.read_csv(filename).values)
     segmentedData = segment_data(train_data, segment_size, window_size)
     for row in segmentedData:
         whole_data = np.append(whole_data, [np.append(row, 1)], axis=0)
 
 # print(whole_data)
 
-for filename in glob.iglob('../../rawAccelerometerData/Sidestep/*.csv', recursive=True):
-    train_data = pd.read_csv(filename).values
+for filename in glob.iglob('../../ClassifiedTrainingSet/Sidestep/*.csv', recursive=True):
+    train_data = minmax_scale(pd.read_csv(filename).values)
     segmentedData = segment_data(train_data, segment_size, window_size)
 
     for row in segmentedData:
         whole_data = np.append(whole_data, [np.append(row, 2)], axis=0)
 
 # print(whole_data)
-for filename in glob.iglob('../../rawAccelerometerData/Chicken/*.csv', recursive=True):
-    train_data = pd.read_csv(filename).values
+for filename in glob.iglob('../../ClassifiedTrainingSet/Chicken/*.csv', recursive=True):
+    train_data = minmax_scale(pd.read_csv(filename).values)
     segmentedData = segment_data(train_data, segment_size, window_size)
 
     for row in segmentedData:
         whole_data = np.append(whole_data, [np.append(row, 3)], axis=0)
 
 
-for filename in glob.iglob('../../rawAccelerometerData/Number7/*.csv', recursive=True):
-    train_data = pd.read_csv(filename).values
+for filename in glob.iglob('../../ClassifiedTrainingSet/Number7/*.csv', recursive=True):
+    train_data = minmax_scale(pd.read_csv(filename).values)
     segmentedData = segment_data(train_data, segment_size, window_size)
 
     for row in segmentedData:
         whole_data = np.append(whole_data, [np.append(row, 4)], axis=0)
 
-for filename in glob.iglob('../../rawAccelerometerData/Idle/*.csv', recursive=True):
-    train_data = pd.read_csv(filename).values
+for filename in glob.iglob('../../ClassifiedTrainingSet/Idle/*.csv', recursive=True):
+    train_data = minmax_scale(pd.read_csv(filename).values)
     segmentedData = segment_data(train_data, segment_size, window_size)
 
     for row in segmentedData:
         whole_data = np.append(whole_data, [np.append(row, 5)], axis=0)
 
-for filename in glob.iglob('../../rawAccelerometerData/Turnclap/*.csv', recursive=True):
-    train_data = pd.read_csv(filename).values
+for filename in glob.iglob('../../ClassifiedTrainingSet/Turnclap/*.csv', recursive=True):
+    train_data = minmax_scale(pd.read_csv(filename).values)
     segmentedData = segment_data(train_data, segment_size, window_size)
 
     for row in segmentedData:
@@ -125,7 +125,7 @@ for filename in glob.iglob('../../rawAccelerometerData/Turnclap/*.csv', recursiv
 
 # # Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test
 #
-# for filename in glob.iglob('rawAccelerometerData/Squatting/UnseenTest/**/*.csv', recursive=True):
+# for filename in glob.iglob('ClassifiedTrainingSet/Squatting/UnseenTest/**/*.csv', recursive=True):
 #     test_data = pd.read_csv(filename).values
 #     segmentedData = segment_data(test_data, segment_size, window_size)
 #
@@ -134,7 +134,7 @@ for filename in glob.iglob('../../rawAccelerometerData/Turnclap/*.csv', recursiv
 #
 # # print(whole_data)
 #
-# for filename in glob.iglob('rawAccelerometerData/Walking/UnseenTest/**/*.csv', recursive=True):
+# for filename in glob.iglob('ClassifiedTrainingSet/Walking/UnseenTest/**/*.csv', recursive=True):
 #     test_data = pd.read_csv(filename).values
 #     segmentedData = segment_data(test_data, segment_size, window_size)
 #
@@ -142,7 +142,7 @@ for filename in glob.iglob('../../rawAccelerometerData/Turnclap/*.csv', recursiv
 #         whole_test = np.append(whole_test, [np.append(row, 2)], axis=0)
 #
 # # print(whole_data)
-# for filename in glob.iglob('rawAccelerometerData/Waving/UnseenTest/**/*.csv', recursive=True):
+# for filename in glob.iglob('ClassifiedTrainingSet/Waving/UnseenTest/**/*.csv', recursive=True):
 #     test_data = pd.read_csv(filename).values
 #     segmentedData = segment_data(test_data, segment_size, window_size)
 #
@@ -155,8 +155,8 @@ y = whole_data[1:, 90]
 X, X_test, y, y_test = train_test_split(X, y, test_size=0.2)
 
 rdf.fit(X, y)
-# joblib.dump(rdf, "randomforest")
-# rdf_module = joblib.load("randomforest")
+joblib.dump(rdf, "randomforest")
+rdf_module = joblib.load("randomforest")
 
 y_pre = rdf.predict(X_test)
 y_pre_round = []
