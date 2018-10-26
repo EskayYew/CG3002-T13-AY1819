@@ -25,10 +25,9 @@ class DanceClassifierNN:
             print("Expected window size is " + str(WINDOW_SIZE) + ". Input size: " + str(len(window)))
             return None
         
-        dataToProcess = window.copy()
-        ExtractFeatures.extractFeatures(dataToProcess)
+        processedData = ExtractFeatures.extractFeatures(window)
         
-        scaledData = self.scaler.transform([dataToProcess])
+        scaledData = self.scaler.transform([processedData])
 
         prediction = self.clf.predict(scaledData)
         confidence_array = self.clf.predict_proba(scaledData)

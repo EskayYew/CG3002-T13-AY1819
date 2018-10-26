@@ -25,10 +25,14 @@ class DanceClassifierNN:
             print("Expected window size is " + str(WINDOW_SIZE) + ". Input size: " + str(len(window)))
             return None
         
-        dataToProcess = window.copy()
-        ExtractFeatures.extractFeatures(dataToProcess)
+        processedData = ExtractFeatures.extractFeatures(window)
         
-        scaledData = self.scaler.transform([dataToProcess])
+        scaledData = self.scaler.transform([processedData])
 
         prediction = self.clf.predict(scaledData)
-        return prediction
+        confidence_array = self.clf.predict_proba(scaledData)
+        
+        if (max(confidence_array[0]) < 0.95): #Predict with 95% confidence
+            return ["UNSURE"]
+        else:
+            return prediction

@@ -22,6 +22,8 @@ HOW TO USE
 4. Prediction is given in the form of a numpy array with 1 item. Access it by indexing first element.
 	e.g. prediction[0] - will give the prediction in the form of a String.
 
+4a. If prediction is unsure, the prediction will be ["UNSURE"]
+
 Below are the names of the predictions
 
 IDLE_A
