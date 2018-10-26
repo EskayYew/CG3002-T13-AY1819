@@ -1,36 +1,34 @@
 import ReadCSVToList
+import SegmentData
+
 import numpy as np
 
 SAVED_MODEL_NAME = "SVM"
-
 SAVED_SCALER_NAME = "SVM_Scaler"
 
-CHICKEN_FILE = "Test/CHICKENSegmentedTest.csv"
+CHICKEN_FOLDER = "Test/Chicken/"
 CHICKEN_LABEL = "CHICKE"
-CHICKEN_DATA = (CHICKEN_FILE, CHICKEN_LABEL)
+CHICKEN_DATA = (CHICKEN_FOLDER, CHICKEN_LABEL)
 
-IDLE_FILE = "Test/IDLE_ACTIONSegmentedTest.csv"
+IDLE_FOLDER = "Test/Idle/"
 IDLE_LABEL = "IDLE_A"
-IDLE_DATA = (IDLE_FILE, IDLE_LABEL)
+IDLE_DATA = (IDLE_FOLDER, IDLE_LABEL)
 
-NUMBER7_FILE = "Test/NUMBER7SegmentedTest.csv"
+NUMBER7_FOLDER = "Test/Number 7/"
 NUMBER7_LABEL = "NUMBER"
-NUMBER7_DATA = (NUMBER7_FILE, NUMBER7_LABEL)
+NUMBER7_DATA = (NUMBER7_FOLDER, NUMBER7_LABEL)
 
-SIDESTEP_FILE = "Test/SIDESTEPSegmentedTest.csv"
+SIDESTEP_FOLDER = "Test/Sidestep/"
 SIDESTEP_LABEL = "SIDEST"
-SIDESTEP_DATA = (SIDESTEP_FILE, SIDESTEP_LABEL)
+SIDESTEP_DATA = (SIDESTEP_FOLDER, SIDESTEP_LABEL)
 
-TURNCLAP_FILE = "Test/TURNCLAPSegmentedTest.csv"
+TURNCLAP_FOLDER = "Test/Turnclap/"
 TURNCLAP_LABEL = "TURNCL"
-TURNCLAP_DATA = (TURNCLAP_FILE, TURNCLAP_LABEL)
+TURNCLAP_DATA = (TURNCLAP_FOLDER, TURNCLAP_LABEL)
 
-WIPERS_FILE = "Test/WIPERSSegmentedTest.csv"
+WIPERS_FOLDER = "Test/Wipers/"
 WIPERS_LABEL = "WIPERS"
-WIPERS_DATA = (WIPERS_FILE, WIPERS_LABEL)
-
-if (False): #Toggle for unseen test data
-    pass
+WIPERS_DATA = (WIPERS_FOLDER, WIPERS_LABEL)
 
 DATA_FILES = [CHICKEN_DATA, IDLE_DATA, NUMBER7_DATA, SIDESTEP_DATA, TURNCLAP_DATA, WIPERS_DATA]
 
@@ -39,18 +37,20 @@ TEST_DATA_LABELS = []
 
 def loadTestData():
     print("Labels used are:")
-    for testing_file in DATA_FILES:
-        filename = testing_file[0]
-        label = testing_file[1]
-        temp_data = ReadCSVToList.convertFileToList(filename)
+    for training_data in DATA_FILES:
+        folder = training_data[0]
+        label = training_data[1]
+        counter = 0
+        temp_data = SegmentData.processFiles(folder)
         print(label)
-
+        
         for row in temp_data:
             TEST_DATA.append(row)
             TEST_DATA_LABELS.append(label)
-    print("Done loading data!\n")
+    
+    print("Done loading training data!\n")
     return
-            
+
 loadTestData()
 
 from sklearn.externals import joblib
