@@ -8,6 +8,7 @@ class Pi:
     def __init__(self):
         self.WINDOWSIZE = 2000
         self.buffer = CircleBuffer(self.WINDOWSIZE)
+        self.fileName = str(sys.argv[1])
         self.SENSOR_COUNT = 23
         self.connection_established = False
         # Setup serial port
@@ -119,7 +120,7 @@ class Pi:
             self.read_data()
         
     def recordData(self):
-        file = str(sys.argv[1])
+        file = self.fileName
         databuffer = self.buffer.get()
         myFile = open(file, 'w', newline='')
         with myFile:
