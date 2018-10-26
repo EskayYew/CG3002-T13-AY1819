@@ -31,4 +31,10 @@ class DanceClassifierNN:
         scaledData = self.scaler.transform([dataToProcess])
 
         prediction = self.clf.predict(scaledData)
-        return prediction
+        confidence_array = self.clf.predict_proba(scaledData)
+        
+        if (max(confidence_array[0]) < 0.95): #Predict with 95% confidence
+            print(sum(confidence_array[0]))
+            return ["UNSURE"]
+        else:
+            return prediction
