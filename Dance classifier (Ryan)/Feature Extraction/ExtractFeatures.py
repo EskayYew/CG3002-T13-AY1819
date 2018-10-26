@@ -15,8 +15,22 @@ def extractFeatures(data):
         result.append(extractRMS(axis1))
         result.append(extractKurtosis(axis1))
         result.append(extractEnergy(axis1))
+        result.append(extractZeroCrossings(axis1))
                         
     return result
+
+#INPUT: 1-D array of data IN THE SAME AXIS
+#OUTPUT: Number of zero crossings for the given data
+
+def extractZeroCrossings(data):
+    crossings = 0
+    signs = np.sign(data) #Gets the sign (positive, zero, negative) of each value
+    differences = np.diff(signs) #Calculates the difference[i] via signs[i+1] - signs[i]
+    for value in differences: 
+        if (value != 0): #Value of 0 indicates no crossing
+            crossings += 1
+    return crossings
+    
 
 #INPUT: 1-D array of data IN THE SAME AXIS
 #OUTPUT: Min value for the given data
