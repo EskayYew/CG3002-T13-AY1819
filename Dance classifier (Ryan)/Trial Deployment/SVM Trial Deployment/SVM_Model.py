@@ -27,7 +27,7 @@ class DanceClassifierSVM:
         
         processedData = ExtractFeatures.extractFeatures(window)
         
-        scaledData = self.scaler.transform([processedData])
+        scaledData = self.scaler.transform([dataToProcess])
 
         prediction = self.clf.predict(scaledData)
         return prediction
