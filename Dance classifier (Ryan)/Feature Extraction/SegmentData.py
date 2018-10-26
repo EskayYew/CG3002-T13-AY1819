@@ -1,8 +1,6 @@
 import csv
 import os
 
-ACTION = ""
-
 SAMPLING_RATE = 50 #Sampling frequency in Hz
 WINDOW_DURATION = 3 #Duration of window in seconds
 SLIDING_WINDOW = 1 #Duration of sliding window in seconds
@@ -11,18 +9,21 @@ RELEVANT_COLUMNS = 19 #Number of relevant columns in data
 POINTS_PER_WINDOW = WINDOW_DURATION * SAMPLING_RATE
 POINTS_PER_SLIDE = SLIDING_WINDOW * SAMPLING_RATE
 
-def processFiles():
+#INPUT: A folder containing CSV files with training data.
+#OUTPUT: A list of the consolidated data.
+def processFiles(folderDirectory):
     PROCESSED_DATA = []
-    listOfFiles = os.listdir("./")
+    listOfFiles = os.listdir(folderDirectory)
+    
     for file in listOfFiles:
-        if (checkIfCSV(file)):
-            convertedFile = makeListFromCSV(file, RELEVANT_COLUMNS)
+        filepath = folderDirectory + "/" + file
+        if (checkIfCSV(filepath)):
+            convertedFile = makeListFromCSV(filepath, RELEVANT_COLUMNS)
             segmentedData = segmentData(convertedFile, POINTS_PER_WINDOW, POINTS_PER_SLIDE) #Window size is 3 secs, sliding window is 1 sec.
 
             PROCESSED_DATA.extend(segmentedData)
 
-    writeData(ACTION, PROCESSED_DATA)
-    return
+    return PROCESSED_DATA
 
 
 #INPUT: A CSV files with training data, number of relevant columns per row.
@@ -56,14 +57,6 @@ def segmentData(dataList, itemsPerWindow, windowInterval): #dataList is a 2D lis
         segmentedData.append(row)
     return segmentedData
 
-
-def writeData(actionName, dataset):
-    with open(actionName + 'Segmented.csv', mode='w') as file:
-        writer = csv.writer(file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
-
-        for row in dataset:
-            writer.writerow(row)
-
 #INPUT: A string of a filename
 #OUTPUT: True if the file is a csv file.
 def checkIfCSV(file):
@@ -72,5 +65,3 @@ def checkIfCSV(file):
         return False
     else:
         return True
-
-processFiles()
