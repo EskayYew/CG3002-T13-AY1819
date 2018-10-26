@@ -1,3 +1,6 @@
+Version 0.7
+- Revamped training method for model.
+
 Version 0.6
 - Minor update on SVM model. SHOULD HAVE NO EFFECT ON PERFORMANCE.
 
