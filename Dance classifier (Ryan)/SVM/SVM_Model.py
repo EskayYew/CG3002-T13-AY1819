@@ -25,8 +25,7 @@ class DanceClassifierSVM:
             print("Expected window size is " + str(WINDOW_SIZE) + ". Input size: " + str(len(window)))
             return None
         
-        dataToProcess = window.copy()
-        ExtractFeatures.extractFeatures(dataToProcess)
+        processedData = ExtractFeatures.extractFeatures(window)
         
         scaledData = self.scaler.transform([dataToProcess])
 
