@@ -1,5 +1,6 @@
 Version 0.7
 - Revamped training method for model.
+- Prediction times may be quicker - UNCONFIRMED.
 
 Version 0.6
 - Returns ["UNSURE"] if the confidence of prediction is < 95%.
