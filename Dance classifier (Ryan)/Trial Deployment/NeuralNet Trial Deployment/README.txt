@@ -22,7 +22,7 @@ HOW TO USE
 4. Prediction is given in the form of a numpy array with 1 item. Access it by indexing first element.
 	e.g. prediction[0] - will give the prediction in the form of a String.
 
-Below are the names of the predictions
+Below are the names of the predictions for Neural Net:
 
 IDLE_A
 CHICKE
@@ -30,3 +30,4 @@ NUMBER
 SIDEST
 TURNCL
 WIPERS
+UNSURE
