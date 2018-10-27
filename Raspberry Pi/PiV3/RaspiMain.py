@@ -203,13 +203,12 @@ class Pi:
                     
                     if((currentTime - self.executionTime) >= 4.0):
                         print(action)
-                        if action != 'IDLE_A':
+                        if action != 'IDLE_A' and action != 'UNSURE':
                             print(action)
                             self.client.sendMessage(action)
                         self.executionTime = currentTime                   
 
                     self.buffer.reset()
-                    # print('Buffer is cleared.')
                     
         except KeyboardInterrupt:
             print('Program End')
