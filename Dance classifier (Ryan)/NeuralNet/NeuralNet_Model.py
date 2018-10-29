@@ -53,12 +53,13 @@ class DanceClassifierNN:
             if (self.predictionAttempts >= MAX_PREDICTION_ATTEMPTS): #Prevent stalling too long
                 self.bestConfidence = 0 #Reset best confidence and number of attempts
                 self.predictionAttempts = 0
+                print("GUESS:", self.bestPrediction) #Debug output to evaluate performance.
                 return self.bestPrediction #Return the best prediction obtained so far
 
             else: #We stall until we hit max prediction attempts or get confidence >= 95%
                 return UNSURE_PREDICTION
         else:
-
+            print("CONFIDENT:", currentPrediction) #Debug output to evaluate performance.
             if (currentPrediction == IDLE_LABEL): #Confident IDLE move, but don't flush past predictions at IDLE will stall the RPi.
                 return currentPrediction
 

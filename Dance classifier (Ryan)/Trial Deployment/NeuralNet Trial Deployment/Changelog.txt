@@ -1,3 +1,6 @@
+Version 1.0.2
+- Add print output to indicate CONFIDENT or GUESS prediction.
+
 Version 1.0.1
 - Changed model to output a STRING.
 - Prevent IDLE detection from flushing existing moves.
