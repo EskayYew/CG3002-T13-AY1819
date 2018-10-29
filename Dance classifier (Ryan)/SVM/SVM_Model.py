@@ -29,5 +29,5 @@ class DanceClassifierSVM:
         
         scaledData = self.scaler.transform([processedData])
 
-        prediction = self.clf.predict(scaledData)
+        prediction = (self.clf.predict(scaledData)[0])
         return prediction

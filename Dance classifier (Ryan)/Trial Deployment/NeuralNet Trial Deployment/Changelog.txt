@@ -1,3 +1,7 @@
+Version 1.0.1
+- Changed model to output a STRING.
+- Prevent IDLE detection from flushing existing moves.
+
 Version 1.0
 - Added training data for all 10 moves. (NOTE: 3 Z-AXIS gyroscopes appear to be omitted)
 - Rename predictions. Refer to README.
