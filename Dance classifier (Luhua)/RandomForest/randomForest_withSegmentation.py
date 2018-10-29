@@ -60,8 +60,8 @@ rdf = RandomForestClassifier()
 whole_data = []
 whole_test = []
 
-segment_size = 150
-window_size = 50
+segment_size = 48
+window_size = 16
 
 # bigger segment, much higher accuracy
 # bigger window, less accuracy: wrong, 30 is the smallest
@@ -159,6 +159,7 @@ joblib.dump(rdf, "randomforest")
 rdf_module = joblib.load("randomforest")
 
 y_pre = rdf.predict(X_test)
+print(y_pre)
 # y_pre_round = []
 #
 # for item in y_pre:

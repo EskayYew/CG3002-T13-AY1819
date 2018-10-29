@@ -24,7 +24,7 @@ def random_forest_loader(data):
         return result_3
 
     else:
-        return 'Cannot determine'
+        return ['Cannot determine']
 
 
 def extract_features(window):
@@ -38,12 +38,10 @@ def extract_features(window):
         max = np.max(window[0:, i])
         min = np.min(window[0:, i])
         kts = kurtosis(window[0:, i])
-        # psd = welch(window[1:, i])
         result_row.append(average)
         result_row.append(variance)
         result_row.append(max)
         result_row.append(min)
         result_row.append(kts)
-        # result_row.append(psd)
 
     return result_row
