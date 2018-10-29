@@ -1,13 +1,5 @@
-import pandas as pd
-from sklearn.ensemble import RandomForestClassifier
-import numpy as np
-import glob
-from sklearn.metrics import accuracy_score
 from sklearn.externals import joblib
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import confusion_matrix
-from scipy.stats import kurtosis
-from sklearn.preprocessing import minmax_scale
+import numpy as np
 
 
 def random_forest_loader(data):
