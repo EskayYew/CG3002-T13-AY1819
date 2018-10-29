@@ -24,7 +24,7 @@ def random_forest_loader(data):
         return result_3
 
     else:
-        return ['Cannot determine']
+        return ['Unsure']
 
 
 def extract_features(window):
