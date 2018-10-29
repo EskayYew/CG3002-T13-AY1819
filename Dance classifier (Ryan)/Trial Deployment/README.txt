@@ -1,5 +1,3 @@
-THIS IS FOR TRIAL/TESTING ONLY!
-
 IMPORTANT THINGS TO TAKE NOTE
 
 1. Sensors are to be read at 50Hz. 
@@ -24,11 +22,18 @@ HOW TO USE
 4. Prediction is given in the form of a numpy array with 1 item. Access it by indexing first element.
 	e.g. prediction[0] - will give the prediction in the form of a String.
 
+4a. If prediction is unsure, the prediction will be ["UNSURE"]
+
 Below are the names of the predictions
 
+CHICKEN
+COWBOY
 IDLE_A
-CHICKE
-NUMBER
-SIDEST
-TURNCL
+MERMAID
+NUMBER6
+NUMBER7
+SALUTE
+SIDESTEP
+SWING
+TURNCLAP
 WIPERS

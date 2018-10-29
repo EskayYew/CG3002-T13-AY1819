@@ -1,3 +1,7 @@
+Version 1.0
+- Added training data for all 10 moves. (NOTE: 3 Z-AXIS gyroscopes appear to be omitted)
+- Rename predictions. Refer to README.
+
 Version 0.8
 - Added new feature - number of zero crossings.
 
