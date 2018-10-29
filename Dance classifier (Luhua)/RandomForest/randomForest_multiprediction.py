@@ -64,8 +64,8 @@ rdf = RandomForestClassifier()
 whole_data = []
 whole_test = []
 
-segment_size = 50
-window_size = 17
+segment_size = 48
+window_size = 16
 
 # bigger segment, much higher accuracy
 # bigger window, less accuracy: wrong, 30 is the smallest
