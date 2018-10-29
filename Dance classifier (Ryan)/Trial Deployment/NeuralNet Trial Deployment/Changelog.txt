@@ -1,3 +1,7 @@
+Version 1.0
+- Added training data for all 10 moves. (NOTE: 3 Z-AXIS gyroscopes appear to be omitted)
+- Rename predictions. Refer to README.
+
 Version 0.9
 - Refactored code.
 - Added a maximum limit of unsure predictions to prevent stalling too long.
