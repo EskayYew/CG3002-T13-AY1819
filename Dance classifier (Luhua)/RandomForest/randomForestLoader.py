@@ -2,8 +2,10 @@ from sklearn.externals import joblib
 import numpy as np
 
 
+rdf_module = joblib.load("randomforest")
+
+
 def random_forest_loader(data):
-    rdf_module = joblib.load("randomforest")
     data_1 = data[0:50]
     data_2 = data[50:100]
     data_3 = data[100:150]
