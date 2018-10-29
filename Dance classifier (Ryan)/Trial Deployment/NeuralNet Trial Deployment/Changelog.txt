@@ -1,3 +1,7 @@
+Version 0.9
+- Refactored code.
+- Added a maximum limit of unsure predictions to prevent stalling too long.
+
 Version 0.8
 - Added new feature - number of zero crossings.
 
