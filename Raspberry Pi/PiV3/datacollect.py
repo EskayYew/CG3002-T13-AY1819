@@ -6,7 +6,7 @@ from CircleBuffer import CircleBuffer
 
 class Pi:
     def __init__(self):
-        self.WINDOWSIZE = 2000
+        self.WINDOWSIZE = 1500
         self.buffer = CircleBuffer(self.WINDOWSIZE)
         self.fileName = str(sys.argv[1])
         self.SENSOR_COUNT = 23
@@ -136,7 +136,7 @@ class Pi:
         try:
             while True:
                 self.communicate()
-                if(self.buffer.getSize == self.WINDOWSIZE):
+                if(self.buffer.getSize() == self.WINDOWSIZE):
                     self.recordData()
         except KeyboardInterrupt:
             self.recordData()

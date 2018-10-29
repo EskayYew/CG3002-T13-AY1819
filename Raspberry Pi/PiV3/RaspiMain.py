@@ -22,8 +22,10 @@ class Communication:
         self.client.connect((self.host, self.port))
         print("[+] You are currently connected to ", self.host + ":" + str(self.port))
 
-        self.actions = {'WIPERS':'wipers', 'NUMBER':'number7', 'CHICKE':'chicken',
-            'SIDEST':'sidestep', 'TURNCL':'turnclap', 'LOGOUT':'logout'}
+        self.actions = {'WIPERS':'wipers', 'NUMBER7':'number7', 'CHICKEN':'chicken',
+            'SIDESTEP':'sidestep', 'TURNCLAP':'turnclap', 'COWBOY':'cowboy',
+            'SWING':'swing', 'MERMAID':'mermaid', 'SALUTE':'salute',
+            'NUMBER6':'numbersix', 'LOGOUT':'logout'}
 
     def encrypt(self, message):
         text = self._pad(message)
@@ -160,7 +162,7 @@ class Pi:
         if(self.data_buff is not None):
             self.buffer.append(self.data_buff)
             
-        if(self.buffer.getSize() % 30 == 0):
+        if(self.buffer.getSize() % 50 == 0):
             print(self.buffer.getSize())
 
         self.byteArray = []
@@ -180,7 +182,7 @@ class Pi:
             print('ML returning None')
             return 'IDLE_A'
 
-        return newPrediction[0]
+        return newPrediction
 
     def main(self):
         try:
