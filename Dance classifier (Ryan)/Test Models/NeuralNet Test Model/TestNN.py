@@ -51,9 +51,9 @@ def loadTestData():
 loadTestData()
 
 from sklearn.externals import joblib
-import NeuralNet_Model
+import NeuralNet_Model_TESTING_ONLY
 
-clf = NeuralNet_Model.DanceClassifierNN()
+clf = NeuralNet_Model_TESTING_ONLY.DanceClassifierNN_TEST_MODE()
 
 PREDICTED_DATA = []
 
@@ -62,12 +62,13 @@ TEST_DATA_SIZE = len(TEST_DATA)
 correct = 0
 
 for i in range(TEST_DATA_SIZE):
-    prediction = clf.detectMove(TEST_DATA[i])
+    prediction = clf.TEST_MODE_DETECT_MOVE(TEST_DATA[i])
     PREDICTED_DATA.append(prediction[0])
     if (prediction == TEST_DATA_LABELS[i]):
         correct +=1
     else:
         print(TEST_DATA_LABELS[i], "detected as", prediction)
+        clf.TEST_MODE_GET_CONFIDENCE(TEST_DATA[i])
 
 print()
 #print("Accuracy: " + str(correct/TEST_DATA_SIZE))
