@@ -1,12 +1,7 @@
 import pandas as pd
-from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
-from sklearn.model_selection import train_test_split
-from sklearn.tree import export_graphviz
-from sklearn import metrics
-from sklearn.tree import _tree
+from sklearn.ensemble import RandomForestClassifier
 import itertools
 import numpy as np
-from sklearn import svm, datasets
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix
 
@@ -30,7 +25,7 @@ y = y[1:]
 class_names = y.unique()
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
-rdf = RandomForestRegressor()
+rdf = RandomForestClassifier()
 rdf.fit(X_train, y_train)
 
 print(f"Accuracy of train data: {rdf.score(X_train, y_train)}")
@@ -42,7 +37,7 @@ y_pred = rdf.predict(X_test)
 cnf_matrix = confusion_matrix(y_test, y_pred)
 np.set_printoptions(precision=2)
 
-plt.figure()
+rdf.figure()
 
 
 def plot_confusion_matrix(cm, classes,
