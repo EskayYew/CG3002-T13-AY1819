@@ -1,5 +1,5 @@
 import pandas as pd
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import RandomForestClassifier
 import numpy as np
 import glob
 from sklearn.metrics import accuracy_score
@@ -55,7 +55,7 @@ def extract_features(window):
     return result_row
 
 
-rdf = RandomForestRegressor()
+rdf = RandomForestClassifier()
 
 whole_data = []
 whole_test = []
@@ -82,7 +82,7 @@ for filename in glob.iglob('../../ClassifiedTrainingSet/Wipers/*.csv', recursive
     train_data = minmax_scale(pd.read_csv(filename).values)
     segmentedData = segment_data(train_data, segment_size, window_size)
     for row in segmentedData:
-        whole_data = np.append(whole_data, [np.append(row, 1)], axis=0)
+        whole_data = np.append(whole_data, [np.append(row, 'Wipers')], axis=0)
 
 # print(whole_data)
 
@@ -91,7 +91,7 @@ for filename in glob.iglob('../../ClassifiedTrainingSet/Sidestep/*.csv', recursi
     segmentedData = segment_data(train_data, segment_size, window_size)
 
     for row in segmentedData:
-        whole_data = np.append(whole_data, [np.append(row, 2)], axis=0)
+        whole_data = np.append(whole_data, [np.append(row, 'Sidestep')], axis=0)
 
 # print(whole_data)
 for filename in glob.iglob('../../ClassifiedTrainingSet/Chicken/*.csv', recursive=True):
@@ -99,7 +99,7 @@ for filename in glob.iglob('../../ClassifiedTrainingSet/Chicken/*.csv', recursiv
     segmentedData = segment_data(train_data, segment_size, window_size)
 
     for row in segmentedData:
-        whole_data = np.append(whole_data, [np.append(row, 3)], axis=0)
+        whole_data = np.append(whole_data, [np.append(row, 'Chicken')], axis=0)
 
 
 for filename in glob.iglob('../../ClassifiedTrainingSet/Number7/*.csv', recursive=True):
@@ -107,21 +107,21 @@ for filename in glob.iglob('../../ClassifiedTrainingSet/Number7/*.csv', recursiv
     segmentedData = segment_data(train_data, segment_size, window_size)
 
     for row in segmentedData:
-        whole_data = np.append(whole_data, [np.append(row, 4)], axis=0)
+        whole_data = np.append(whole_data, [np.append(row, 'Number7')], axis=0)
 
 for filename in glob.iglob('../../ClassifiedTrainingSet/Idle/*.csv', recursive=True):
     train_data = minmax_scale(pd.read_csv(filename).values)
     segmentedData = segment_data(train_data, segment_size, window_size)
 
     for row in segmentedData:
-        whole_data = np.append(whole_data, [np.append(row, 5)], axis=0)
+        whole_data = np.append(whole_data, [np.append(row, 'Idle')], axis=0)
 
 for filename in glob.iglob('../../ClassifiedTrainingSet/Turnclap/*.csv', recursive=True):
     train_data = minmax_scale(pd.read_csv(filename).values)
     segmentedData = segment_data(train_data, segment_size, window_size)
 
     for row in segmentedData:
-        whole_data = np.append(whole_data, [np.append(row, 6)], axis=0)
+        whole_data = np.append(whole_data, [np.append(row, 'Turnclap')], axis=0)
 
 # # Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test
 #
@@ -159,13 +159,13 @@ joblib.dump(rdf, "randomforest")
 rdf_module = joblib.load("randomforest")
 
 y_pre = rdf.predict(X_test)
-y_pre_round = []
+# y_pre_round = []
+#
+# for item in y_pre:
+#     y_pre_round.append(round(item))
 
-for item in y_pre:
-    y_pre_round.append(round(item))
-
-print(accuracy_score(y_test, y_pre_round))
-print(confusion_matrix(y_test, y_pre_round))
+print(accuracy_score(y_test, y_pre))
+print(confusion_matrix(y_test, y_pre))
 
 print(f"Accuracy of train data: {rdf.score(X, y)}")
 print(f"Accuracy of test data: {rdf.score(X_test, y_test)}")
