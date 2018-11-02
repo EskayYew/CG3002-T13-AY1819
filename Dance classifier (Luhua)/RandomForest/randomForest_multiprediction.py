@@ -28,9 +28,6 @@ def segment_data(array, segment_size, window_size):
             break
 
         result = extract_features(window)
-        print(result)
-        print('\n')
-
         segmented_data.append(result)
         # segmented_data.flatten();
 
@@ -129,7 +126,7 @@ for filename in glob.iglob('../../ClassifiedTrainingSet/Turnclap/*.csv', recursi
 
 # # Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test
 #
-# for filename in glob.iglob('ClassifiedTrainingSet/Squatting/UnseenTest/**/*.csv', recursive=True):
+# for filename in glob.iglob('ClassifiedTrainingSet 1/Squatting/UnseenTest/**/*.csv', recursive=True):
 #     test_data = pd.read_csv(filename).values
 #     segmentedData = segment_data(test_data, segment_size, window_size)
 #
@@ -138,7 +135,7 @@ for filename in glob.iglob('../../ClassifiedTrainingSet/Turnclap/*.csv', recursi
 #
 # # print(whole_data)
 #
-# for filename in glob.iglob('ClassifiedTrainingSet/Walking/UnseenTest/**/*.csv', recursive=True):
+# for filename in glob.iglob('ClassifiedTrainingSet 1/Walking/UnseenTest/**/*.csv', recursive=True):
 #     test_data = pd.read_csv(filename).values
 #     segmentedData = segment_data(test_data, segment_size, window_size)
 #
@@ -146,7 +143,7 @@ for filename in glob.iglob('../../ClassifiedTrainingSet/Turnclap/*.csv', recursi
 #         whole_test = np.append(whole_test, [np.append(row, 2)], axis=0)
 #
 # # print(whole_data)
-# for filename in glob.iglob('ClassifiedTrainingSet/Waving/UnseenTest/**/*.csv', recursive=True):
+# for filename in glob.iglob('ClassifiedTrainingSet 1/Waving/UnseenTest/**/*.csv', recursive=True):
 #     test_data = pd.read_csv(filename).values
 #     segmentedData = segment_data(test_data, segment_size, window_size)
 #
