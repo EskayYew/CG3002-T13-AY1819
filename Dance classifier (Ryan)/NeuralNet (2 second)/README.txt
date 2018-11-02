@@ -1,7 +1,7 @@
 IMPORTANT THINGS TO TAKE NOTE
 
 1. Sensors are to be read at 50Hz. 
-2. Window Size is 3 seconds long - i.e. 150 datapoints.
+2. Window Size is 2 seconds long - i.e. 100 datapoints.
 3. POWER SENSOR DATA SHOULD NOT BE INCLUDED IN THE WINDOW FED TO THE MODEL.
 
 HOW TO USE
