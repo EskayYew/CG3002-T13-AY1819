@@ -7,7 +7,9 @@ class RandomForestModel:
     def __init__(self):
         self.model = joblib.load("randomforest")
 
-    def predict(self, data):
+    def predict(self, window):
+        data = np.array(window)
+
         if len(data) != 150:
             print("ERROR: Window size does not match!")
             print("Expected window size is " + str(150) + ". Input size: " + str(len(data)))
