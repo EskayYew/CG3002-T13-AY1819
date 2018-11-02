@@ -8,7 +8,6 @@ from sklearn.preprocessing import MinMaxScaler
 SAVED_MODEL_NAME = "NeuralNet"
 SAVED_SCALER_NAME = "NeuralNet_Scaler"
 
-UNSURE_PREDICTION = ["UNSURE"]
 MAX_PREDICTION_ATTEMPTS = 3
 
 SAMPLING_RATE = 50 #Sampling frequency in Hz
