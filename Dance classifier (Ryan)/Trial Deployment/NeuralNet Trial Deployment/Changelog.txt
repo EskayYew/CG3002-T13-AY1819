@@ -1,3 +1,7 @@
+Version 1.0.4
+- Trained Model with 10 moves for 5 users (Ryan, Luhua, Darren, Kyle, Adil).
+- Gyro Z sensor issues resolved with training data.
+
 Version 1.0.2
 - Add print output to indicate CONFIDENT or GUESS prediction.
 
