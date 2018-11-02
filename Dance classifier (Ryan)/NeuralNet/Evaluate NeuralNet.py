@@ -84,7 +84,7 @@ from sklearn.pipeline import make_pipeline
 NN_CV = make_pipeline(MinMaxScaler(feature_range=(-1, 1)), MLPClassifier(solver='adam',activation='relu'))
 
 from sklearn.model_selection import ShuffleSplit
-rs = ShuffleSplit(n_splits=30, random_state=None, test_size=0.35)
+rs = ShuffleSplit(n_splits=30, random_state=None, test_size=0.4)
 
 from sklearn.model_selection import cross_val_score
 scores = cross_val_score(NN_CV, X, y, cv=rs)
