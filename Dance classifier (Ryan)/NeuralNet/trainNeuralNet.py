@@ -51,7 +51,8 @@ WIPERS_FOLDER = "Training/Wipers/"
 WIPERS_LABEL = "WIPERS"
 WIPERS_DATA = (WIPERS_FOLDER, WIPERS_LABEL)
 
-DATA_FILES = [CHICKEN_DATA, COWBOY_DATA, IDLE_DATA, MERMAID_DATA, NUMBER6_DATA, NUMBER7_DATA, SALUTE_DATA, SIDESTEP_DATA, SWING_DATA, TURNCLAP_DATA, WIPERS_DATA]
+DATA_FILES = [CHICKEN_DATA, COWBOY_DATA, IDLE_DATA, MERMAID_DATA, NUMBER6_DATA, NUMBER7_DATA,
+              SALUTE_DATA, SIDESTEP_DATA, SWING_DATA, TURNCLAP_DATA, WIPERS_DATA]
 
 TRAINING_LABELS = []
 FINAL_TRAINING_DATA = []
@@ -86,7 +87,7 @@ TRANSFORMED_X = scaler.fit_transform(X)
 from sklearn.externals import joblib
 #Train the NeuralNet
 from sklearn.neural_network import MLPClassifier
-clf = MLPClassifier(solver='adam', activation='relu')
+clf = MLPClassifier(hidden_layer_sizes=(100,), solver='adam', activation='relu')
 clf.fit(TRANSFORMED_X, y)
 
 #Save the scaler and model

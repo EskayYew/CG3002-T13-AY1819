@@ -48,7 +48,8 @@ WIPERS_FOLDER = "Training/Wipers/"
 WIPERS_LABEL = "WIPERS"
 WIPERS_DATA = (WIPERS_FOLDER, WIPERS_LABEL)
 
-DATA_FILES = [CHICKEN_DATA, COWBOY_DATA, IDLE_DATA, MERMAID_DATA, NUMBER6_DATA, NUMBER7_DATA, SALUTE_DATA, SIDESTEP_DATA, SWING_DATA, TURNCLAP_DATA, WIPERS_DATA]
+DATA_FILES = [CHICKEN_DATA, COWBOY_DATA, IDLE_DATA, MERMAID_DATA, NUMBER6_DATA, NUMBER7_DATA,
+              SALUTE_DATA, SIDESTEP_DATA, SWING_DATA, TURNCLAP_DATA, WIPERS_DATA]
 
 TRAINING_LABELS = []
 FINAL_TRAINING_DATA = []
@@ -81,7 +82,7 @@ from sklearn.neural_network import MLPClassifier
 #IMPORTANT: DO NOT FIT ANY DATA TO MODEL BEFORE CV TESTING.
 
 from sklearn.pipeline import make_pipeline
-NN_CV = make_pipeline(MinMaxScaler(feature_range=(-1, 1)), MLPClassifier(solver='adam',activation='relu'))
+NN_CV = make_pipeline(MinMaxScaler(feature_range=(-1, 1)), MLPClassifier(hidden_layer_sizes=(100,), solver='adam',activation='relu'))
 
 from sklearn.model_selection import ShuffleSplit
 rs = ShuffleSplit(n_splits=30, random_state=None, test_size=0.4)
