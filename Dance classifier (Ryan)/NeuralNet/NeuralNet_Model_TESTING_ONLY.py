@@ -39,6 +39,9 @@ class DanceClassifierNN_TEST_MODE:
         confidence_array = self.clf.predict_proba(scaledData)
         currentConfidence = max(confidence_array[0])
 
+        if (currentConfidence < 0.95):
+            print(currentPrediction, currentConfidence)
+
         return currentPrediction
 
     #Helper function to get the current and next best confidence for the prediction
