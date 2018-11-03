@@ -1,3 +1,6 @@
+Version 1.0.5
+- Refactored code.
+
 Version 1.0.4
 - Trained Model with 10 moves for 5 users (Ryan, Luhua, Darren, Kyle, Adil).
 - Gyro Z sensor issues resolved with training data.

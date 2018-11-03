@@ -1,4 +1,4 @@
-import ExtractFeatures
+from ExtractFeatures import extractFeatures
 import ReadCSVToList
 import SegmentData
 
@@ -64,7 +64,7 @@ def loadData():
         print(label)
         
         for row in temp_data:
-            processedRow = ExtractFeatures.extractFeatures(row)
+            processedRow = extractFeatures(row)
             FINAL_TRAINING_DATA.append(processedRow)
             TRAINING_LABELS.append(label)
     
