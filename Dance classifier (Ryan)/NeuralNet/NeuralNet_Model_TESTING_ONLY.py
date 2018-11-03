@@ -9,6 +9,8 @@ SAVED_MODEL_NAME = "NeuralNet"
 SAVED_SCALER_NAME = "NeuralNet_Scaler"
 
 MAX_PREDICTION_ATTEMPTS = 3
+#Mininum confidence for the model to output a prediction. If this is not met, steps will be taken to make a good guess.
+CONFIDENCE_THRESHOLD = 0.95
 
 SAMPLING_RATE = 50 #Sampling frequency in Hz
 WINDOW_DURATION = 3 #Duration of window in seconds
@@ -39,7 +41,7 @@ class DanceClassifierNN_TEST_MODE:
         confidence_array = self.clf.predict_proba(scaledData)
         currentConfidence = max(confidence_array[0])
 
-        if (currentConfidence < 0.95):
+        if (currentConfidence < CONFIDENCE_THRESHOLD):
             print(currentPrediction, currentConfidence)
 
         return currentPrediction
