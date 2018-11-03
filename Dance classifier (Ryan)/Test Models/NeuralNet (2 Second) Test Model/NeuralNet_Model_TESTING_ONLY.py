@@ -1,4 +1,4 @@
-import ExtractFeatures
+from ExtractFeatures import extractFeatures
 import numpy as np
 
 from sklearn.externals import joblib
@@ -30,7 +30,7 @@ class DanceClassifierNN_TEST_MODE:
             print("Expected window size is " + str(WINDOW_SIZE) + ". Input size: " + str(len(window)))
             return None
         
-        processedData = ExtractFeatures.extractFeatures(window)
+        processedData = extractFeatures(window)
         
         scaledData = self.scaler.transform([processedData])
 
@@ -51,7 +51,7 @@ class DanceClassifierNN_TEST_MODE:
             print("Expected window size is " + str(WINDOW_SIZE) + ". Input size: " + str(len(window)))
             return None
 
-        processedData = ExtractFeatures.extractFeatures(window)
+        processedData = extractFeatures(window)
         
         scaledData = self.scaler.transform([processedData])
         
