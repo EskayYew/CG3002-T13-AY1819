@@ -19,7 +19,8 @@ def processFiles(folderDirectory):
         filepath = folderDirectory + "/" + file
         if (checkIfCSV(filepath)):
             convertedFile = makeListFromCSV(filepath, RELEVANT_COLUMNS)
-            segmentedData = segmentData(convertedFile, POINTS_PER_WINDOW, POINTS_PER_SLIDE) #Window size is 3 secs, sliding window is 1 sec.
+            segmentedData = segmentData(convertedFile, POINTS_PER_WINDOW, POINTS_PER_SLIDE)
+            #Window size is 3 secs, sliding window is 1 sec.
 
             PROCESSED_DATA.extend(segmentedData)
 
