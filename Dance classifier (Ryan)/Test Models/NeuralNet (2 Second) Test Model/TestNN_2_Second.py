@@ -82,6 +82,9 @@ PREDICTED_DATA = []
 TEST_DATA_SIZE = len(TEST_DATA)
 correct = 0
 
+import time
+start_time = time.time()
+
 for i in range(TEST_DATA_SIZE):
     prediction = clf.TEST_MODE_DETECT_MOVE(TEST_DATA[i])
     PREDICTED_DATA.append(prediction[0])
@@ -114,3 +117,5 @@ print("Precision:", precision_score(TEST_DATA_LABELS, PREDICTED_DATA, average='w
 from sklearn.metrics import accuracy_score
 accuracy = accuracy_score(TEST_DATA_LABELS, PREDICTED_DATA)
 print("Accuracy:", str(accuracy))
+
+print("--- %s seconds ---" % (time.time() - start_time))
