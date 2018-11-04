@@ -26,14 +26,14 @@ def extractFeatures(data):
                 continue
 
             axis2 = readings[j]
-            covarianceMatrix = np.cov(axis1, axis2, bias=True)
-            covariance = covarianceMatrix[0][1]
             standardDeviation2 = np.std(axis2)
 
             if ((standardDeviation1 == 0) or (standardDeviation2 == 0)):
                 relation = 0
             
             else:
+                covarianceMatrix = np.cov(axis1, axis2, bias=True)
+                covariance = covarianceMatrix[0][1]
                 denom = (standardDeviation1 * standardDeviation2)
                 relation = (covariance / denom)
 

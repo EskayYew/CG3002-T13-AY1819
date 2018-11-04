@@ -1,5 +1,8 @@
+Version 1.0.2
+- Speed up feature extraction.
+
 Version 1.0.1
--Refactored code.
+- Refactored code.
 
 Version 1.0
 - Initial version of NeuralNet Correlation Model with 2 second data window.
