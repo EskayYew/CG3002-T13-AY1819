@@ -1,0 +1,10 @@
+Version 1.0.2
+- Speed up feature extraction.
+
+Version 1.0.1
+- Refactored code.
+
+Version 1.0
+- Initial version of NeuralNet Correlation Model with 2 second data window.
+- Trained Model with 10 moves for 5 users (Ryan, Luhua, Darren, Kyle, Adil).
+- Gyro Z sensor issues resolved with training data.
