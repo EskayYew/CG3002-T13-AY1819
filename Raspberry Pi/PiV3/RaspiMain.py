@@ -49,11 +49,12 @@ class Communication:
 
 class Pi:
     def __init__(self, host, port):
-        self.WINDOWSIZE = 150
+        self.WINDOWSIZE = 100
         self.dataList = [4.65, 2.00, 1.98, 10.00]
         self.buffer = RingBuffer(self.WINDOWSIZE)
         self.client = Communication(host, port, self.dataList)
-        
+        self.movesSent = 0
+
         # Machine Learning
         self.model = DanceClassifierNN()
         self.executionTime = 0.0
@@ -161,9 +162,6 @@ class Pi:
         
         if(self.data_buff is not None):
             self.buffer.append(self.data_buff)
-            
-        if(self.buffer.getSize() % 50 == 0):
-            print(self.buffer.getSize())
 
         self.byteArray = []
         self.data_buff = []
@@ -171,7 +169,6 @@ class Pi:
     def communicate(self):
         if not self.connection_established:
             self.establish_connection()
-            #self.read_data()
         else:
             self.read_data()
 
@@ -188,10 +185,11 @@ class Pi:
         try:
             self.executionTime = time.time()
             while True:
-                # Keep collecting data
+                # Collect data
                 self.communicate()
                 
                 if(self.buffer.getSize() == self.WINDOWSIZE):
+                    print('buffer full')
                     action = 'IDLE_A'
                     
                     tempBuffer = self.buffer.get()
@@ -200,16 +198,22 @@ class Pi:
                     for i in range(0, self.WINDOWSIZE):
                         feedingBuffer += tempBuffer[i]
                     
-                    action = self.processData(feedingBuffer)
                     currentTime = time.time()
                     
-                    if((currentTime - self.executionTime) >= 4.0):
+                    if((currentTime - self.executionTime) >= 2.5):
+                        action = self.processData(feedingBuffer)
                         print(action)
                         if action != 'IDLE_A' and action != 'UNSURE':
-                            print(action)
                             self.client.sendMessage(action)
+                            self.movesSent += 1        
+
                         self.executionTime = currentTime                   
 
+                    if((self.movesSent >= 41) and action is 'LOGOUT'):
+                        print('LOGOUT move & 41 moves sent')
+                        print('Program End')
+                        sys.exit(1)
+                    
                     self.buffer.reset()
                     
         except KeyboardInterrupt:
