@@ -93,7 +93,8 @@ for i in range(TEST_DATA_SIZE):
     else:
         print(TEST_DATA_LABELS[i], "detected as", prediction)
         clf.TEST_MODE_GET_CONFIDENCE(TEST_DATA[i])
-
+print()
+print("--- %s seconds ---" % (time.time() - start_time))
 print()
 #print("Accuracy: " + str(correct/TEST_DATA_SIZE))
 
@@ -117,5 +118,3 @@ print("Precision:", precision_score(TEST_DATA_LABELS, PREDICTED_DATA, average='w
 from sklearn.metrics import accuracy_score
 accuracy = accuracy_score(TEST_DATA_LABELS, PREDICTED_DATA)
 print("Accuracy:", str(accuracy))
-
-print("--- %s seconds ---" % (time.time() - start_time))
