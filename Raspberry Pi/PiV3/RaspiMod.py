@@ -206,7 +206,7 @@ class Pi:
 
                         self.executionTime = currentTime                   
 
-                    if((self.movesSent >= 41) and action is 'LOGOUT'):
+                    if((self.movesSent >= 41) and action == 'LOGOUT'):
                         print('LOGOUT move & 41 moves sent')
                         print('Program End')
                         sys.exit(1)
