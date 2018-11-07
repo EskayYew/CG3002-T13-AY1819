@@ -62,6 +62,7 @@ class Pi:
         
         # Data Collection
         self.SENSOR_COUNT = 23
+        self.csPosition = self.SENSOR_COUNT * 2
         self.connection_established = False
 
         # Setup serial port
@@ -87,27 +88,24 @@ class Pi:
 
         chkPos = self.SENSOR_COUNT
 
-        # go from 0 to 22 since sensorcount is 23(46)
+        # Forms an array of 0 to 22 since sensorcount is 23(46)
         for counter in range (0, chkPos):
             byte1 = bArray[counter * 2]
             checksum = checksum ^ (int.from_bytes(byte1, byteorder="big", signed=True))
             byte2 = bArray[counter * 2 + 1]
             checksum = checksum ^ (int.from_bytes(byte2, byteorder="big", signed=True))
             combinedValue = int.from_bytes(byte2 + byte1, byteorder="big", signed=True)
-            
-            if counter >= 19 and counter <= 21:
-                combinedValue /= 100
-            if counter == 22:
-                combinedValue /= 1000
-            
             newArray.append(combinedValue)
+
+        for counter in range (19,22):
+            newArray[counter] /= 100
+
+        newArray[22] /= 1000
 
         self.dataList = newArray[19:23]
         self.client.updateData(self.dataList)
         
-        chkPos = chkPos*2
-
-        arrayChecksum = (int.from_bytes(bArray[chkPos] , byteorder="big", signed=True))
+        arrayChecksum = (int.from_bytes(bArray[self.csPosition] , byteorder="big", signed=True))
         # checksum is at 46th position of bArray
         # if checksum matches, then data is clean and ready to be stored into circular buffer
         if (checksum == arrayChecksum):
@@ -152,7 +150,7 @@ class Pi:
                     self.connection_established = False
                     print('termination')
                     return
-                
+
             rcv = self.ser.read()
             self.byteArray.append(rcv)
 
@@ -182,7 +180,7 @@ class Pi:
                 self.communicate()
                 
                 if(self.buffer.getSize() == self.WINDOWSIZE):
-                    print('buffer full')
+                    print('Buffer Filled')
                     action = 'IDLE_A'
                     
                     tempBuffer = self.buffer.get()
@@ -192,7 +190,6 @@ class Pi:
                         feedingBuffer += tempBuffer[i]
                     
                     currentTime = time.time()
-                    
                     if((currentTime - self.executionTime) >= self.FlushTime):
                         action = self.processData(feedingBuffer)
                         print(action)
@@ -207,7 +204,7 @@ class Pi:
                         self.executionTime = currentTime                   
 
                     if((self.movesSent >= 41) and action == 'LOGOUT'):
-                        print('LOGOUT move & 41 moves sent')
+                        print('LOGOUT & 41 MOVES SENT')
                         print('Program End')
                         sys.exit(1)
                     
