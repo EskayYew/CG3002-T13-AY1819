@@ -48,8 +48,12 @@ WIPERS_FOLDER = "Training/Wipers/"
 WIPERS_LABEL = "WIPERS"
 WIPERS_DATA = (WIPERS_FOLDER, WIPERS_LABEL)
 
+LOGOUT_FOLDER = "Training/Logout/"
+LOGOUT_LABEL = "LOGOUT"
+LOGOUT_DATA = (LOGOUT_FOLDER, LOGOUT_LABEL)
+
 DATA_FILES = [CHICKEN_DATA, COWBOY_DATA, IDLE_DATA, MERMAID_DATA, NUMBER6_DATA, NUMBER7_DATA,
-              SALUTE_DATA, SIDESTEP_DATA, SWING_DATA, TURNCLAP_DATA, WIPERS_DATA]
+              SALUTE_DATA, SIDESTEP_DATA, SWING_DATA, TURNCLAP_DATA, WIPERS_DATA, LOGOUT_DATA]
 
 TRAINING_LABELS = []
 FINAL_TRAINING_DATA = []
@@ -85,7 +89,7 @@ from sklearn.pipeline import make_pipeline
 NN_CV = make_pipeline(MinMaxScaler(feature_range=(-1, 1)), MLPClassifier(hidden_layer_sizes=(100,), solver='adam',activation='relu'))
 
 from sklearn.model_selection import ShuffleSplit
-rs = ShuffleSplit(n_splits=30, random_state=None, test_size=0.4)
+rs = ShuffleSplit(n_splits=30, random_state=None, test_size=0.25)
 
 from sklearn.model_selection import cross_val_score
 scores = cross_val_score(NN_CV, X, y, cv=rs)
