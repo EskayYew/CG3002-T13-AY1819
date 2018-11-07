@@ -4,7 +4,7 @@ import serial
 import socket
 import sys
 import base64
-from NeuralNet_Model import DanceClassifierNN
+from NeuralNet_Correlation_Model import DanceClassifierNN
 from Crypto import Random
 from Crypto.Cipher import AES
 from RingBuffer import RingBuffer
@@ -58,7 +58,8 @@ class Pi:
         # Machine Learning
         self.model = DanceClassifierNN()
         self.executionTime = 0.0
-
+        self.FlushTime = 2.5
+        
         # Data Collection
         self.SENSOR_COUNT = 23
         self.connection_established = False
@@ -192,12 +193,16 @@ class Pi:
                     
                     currentTime = time.time()
                     
-                    if((currentTime - self.executionTime) >= 2.5):
+                    if((currentTime - self.executionTime) >= self.FlushTime):
                         action = self.processData(feedingBuffer)
                         print(action)
-                        if action != 'IDLE_A' and action != 'UNSURE':
+                        
+                        if action == 'UNSURE':
+                            self.FlushTime = 1.0
+                        elif action != 'IDLE_A' and action != 'UNSURE':
                             self.client.sendMessage(action)
-                            self.movesSent += 1        
+                            self.movesSent += 1
+                            self.FlushTime = 2.5
 
                         self.executionTime = currentTime                   
 
