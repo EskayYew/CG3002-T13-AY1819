@@ -194,19 +194,20 @@ class Pi:
                         action = self.processData(feedingBuffer)
                         print(action)
                         
+                        if self.movesSent >= 40:
+                            if action == 'LOGOUT':
+                                self.client.sendMessage(action)
+                                print('Program End: LOGOUT & 41 MOVES SENT')
+                                sys.exit(1)
+
                         if action == 'UNSURE':
                             self.FlushTime = 1.0
-                        elif action != 'IDLE_A' and action != 'UNSURE':
+                        elif action != 'IDLE_A' and action != 'LOGOUT':
                             self.client.sendMessage(action)
                             self.movesSent += 1
                             self.FlushTime = 2.5
 
-                        self.executionTime = currentTime                   
-
-                    if((self.movesSent >= 41) and action == 'LOGOUT'):
-                        print('LOGOUT & 41 MOVES SENT')
-                        print('Program End')
-                        sys.exit(1)
+                        self.executionTime = currentTime
                     
                     self.buffer.reset()
                     
