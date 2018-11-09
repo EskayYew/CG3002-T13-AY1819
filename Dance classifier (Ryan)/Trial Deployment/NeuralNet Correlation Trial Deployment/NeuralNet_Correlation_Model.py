@@ -32,7 +32,7 @@ class DanceClassifierNN:
         self.bestConfidence = 0
         self.predictionAttempts = 0
         self.lastPrediction = ''
-        selt.confidenceCounter = 0 #To be used for unsure detection
+        self.confidenceCounter = 0 #To be used for unsure detection
 
     def detectMove(self, window):
         if (len(window) != WINDOW_SIZE):
@@ -54,7 +54,7 @@ class DanceClassifierNN:
 
             if (currentConfidence >= UNSURE_CONFIDENCE_THRESHOLD):
                 self.confidenceCounter += 1
-                if (confidenceCounter >= 2):
+                if (self.confidenceCounter >= 2):
                     if (currentPrediction == self.lastPrediction):
                         self.confidenceCounter = 0
                         self.lastPrediction = ''
