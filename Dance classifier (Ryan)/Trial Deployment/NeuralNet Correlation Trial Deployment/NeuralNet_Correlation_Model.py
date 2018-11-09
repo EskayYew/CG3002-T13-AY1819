@@ -13,7 +13,8 @@ UNSURE_PREDICTION = "UNSURE"
 MAX_PREDICTION_ATTEMPTS = 3
 
 #Mininum confidence for the model to output a prediction. If this is not met, steps will be taken to make a good guess.
-CONFIDENCE_THRESHOLD = 0.90 
+CONFIDENCE_THRESHOLD = 0.90
+UNSURE_CONFIDENCE_THRESHOLD = 0.75
 
 SAMPLING_RATE = 50 #Sampling frequency in Hz
 WINDOW_DURATION = 2 #Duration of window in seconds
@@ -30,6 +31,8 @@ class DanceClassifierNN:
         self.bestPrediction = ''
         self.bestConfidence = 0
         self.predictionAttempts = 0
+        self.lastPrediction = ''
+        selt.confidenceCounter = 0 #To be used for unsure detection
 
     def detectMove(self, window):
         if (len(window) != WINDOW_SIZE):
@@ -49,6 +52,18 @@ class DanceClassifierNN:
         if (currentConfidence < CONFIDENCE_THRESHOLD): #If confidence is below threshold
             self.predictionAttempts += 1
 
+            if (currentConfidence >= UNSURE_CONFIDENCE_THRESHOLD):
+                self.confidenceCounter += 1
+                if (confidenceCounter >= 2):
+                    if (currentPrediction == self.lastPrediction):
+                        self.confidenceCounter = 0
+                        self.lastPrediction = ''
+                        print("MATCH:", currentPrediction)
+                        return currentPrediction
+                else:
+                    self.lastPrediction = currentPrediction
+                
+
             if (currentConfidence > self.bestConfidence): #If it's the most confident so far
                 self.bestConfidence = currentConfidence #Update best confidence and prediction
                 self.bestPrediction = currentPrediction
@@ -56,10 +71,12 @@ class DanceClassifierNN:
             if (self.predictionAttempts >= MAX_PREDICTION_ATTEMPTS): #Prevent stalling too long
                 self.bestConfidence = 0 #Reset best confidence and number of attempts
                 self.predictionAttempts = 0
+                self.confidenceCounter = 0
+                self.lastPrediction = ''
                 print("GUESS:", self.bestPrediction) #Debug output to evaluate performance.
                 return self.bestPrediction #Return the best prediction obtained so far
 
-            else: #We stall until we hit max prediction attempts or get confidence >= 95%
+            else: #We stall until we hit max prediction attempts or get confidence >= 90%
                 print("UNSURE:", currentPrediction)
                 return UNSURE_PREDICTION
         else:
@@ -70,4 +87,6 @@ class DanceClassifierNN:
             else: #Confident of current move, safe to flush past predictions.
                 self.bestConfidence = 0 #Reset best confidence and number of attempts
                 self.predictionAttempts = 0
+                self.confidenceCounter = 0
+                self.lastPrediction = ''
                 return currentPrediction #We return current prediction as it is more than 95% sure.
