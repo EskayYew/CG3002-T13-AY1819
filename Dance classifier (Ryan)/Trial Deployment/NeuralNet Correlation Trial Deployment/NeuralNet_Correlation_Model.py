@@ -60,6 +60,7 @@ class DanceClassifierNN:
                 return self.bestPrediction #Return the best prediction obtained so far
 
             else: #We stall until we hit max prediction attempts or get confidence >= 95%
+                print("UNSURE:", currentPrediction)
                 return UNSURE_PREDICTION
         else:
             print("CONFIDENT:", currentPrediction) #Debug output to evaluate performance.
