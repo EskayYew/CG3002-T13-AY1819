@@ -2,12 +2,12 @@ import csv
 import os
 
 SAMPLING_RATE = 50 #Sampling frequency in Hz
-WINDOW_DURATION = 3 #Duration of window in seconds
-SLIDING_WINDOW = 1 #Duration of sliding window in seconds
+WINDOW_DURATION = 2 #Duration of window in seconds
+SLIDING_WINDOW = 0.5 #Duration of sliding window in seconds
 RELEVANT_COLUMNS = 19 #Number of relevant columns in data
 
 POINTS_PER_WINDOW = WINDOW_DURATION * SAMPLING_RATE
-POINTS_PER_SLIDE = SLIDING_WINDOW * SAMPLING_RATE
+POINTS_PER_SLIDE = int(SLIDING_WINDOW * SAMPLING_RATE)
 
 #INPUT: A folder containing CSV files with training data.
 #OUTPUT: A list of the consolidated data.
@@ -19,8 +19,7 @@ def processFiles(folderDirectory):
         filepath = folderDirectory + "/" + file
         if (checkIfCSV(filepath)):
             convertedFile = makeListFromCSV(filepath, RELEVANT_COLUMNS)
-            segmentedData = segmentData(convertedFile, POINTS_PER_WINDOW, POINTS_PER_SLIDE)
-            #Window size is 3 secs, sliding window is 1 sec.
+            segmentedData = segmentData(convertedFile, POINTS_PER_WINDOW, POINTS_PER_SLIDE) #Window size is 2 secs, sliding window is 0.5 sec.
 
             PROCESSED_DATA.extend(segmentedData)
 
