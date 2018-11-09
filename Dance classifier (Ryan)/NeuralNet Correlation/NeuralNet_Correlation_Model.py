@@ -13,7 +13,7 @@ UNSURE_PREDICTION = "UNSURE"
 MAX_PREDICTION_ATTEMPTS = 3
 
 #Mininum confidence for the model to output a prediction. If this is not met, steps will be taken to make a good guess.
-CONFIDENCE_THRESHOLD = 0.95 
+CONFIDENCE_THRESHOLD = 0.90 
 
 SAMPLING_RATE = 50 #Sampling frequency in Hz
 WINDOW_DURATION = 2 #Duration of window in seconds
@@ -60,6 +60,7 @@ class DanceClassifierNN:
                 return self.bestPrediction #Return the best prediction obtained so far
 
             else: #We stall until we hit max prediction attempts or get confidence >= 95%
+                print("UNSURE:", currentPrediction)
                 return UNSURE_PREDICTION
         else:
             print("CONFIDENT:", currentPrediction) #Debug output to evaluate performance.
