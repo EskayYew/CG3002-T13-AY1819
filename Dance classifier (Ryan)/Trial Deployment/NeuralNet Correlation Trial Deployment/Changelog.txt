@@ -1,3 +1,6 @@
+Version 1.2.1
+- Retrain model with fixed salute dance move.
+
 Version 1.2.0
 - Add feature to return move if 2 consecutive moves above 75% confidence detected.
 
