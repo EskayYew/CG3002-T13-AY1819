@@ -1,0 +1,26 @@
+Version 1.1.1
+- Retrain model with fixed salute dance move.
+
+Version 1.1.0
+- Trained with Shengkai's data.
+- Added logout move of Luhua.
+
+Version 1.0.5
+- Reduce confidence level to 90%.
+
+Version 1.0.4
+- Add debug output to show unsure move.
+
+Version 1.0.3
+- Add logout move of Kyle, Darren, Ryan.
+
+Version 1.0.2
+- Speed up feature extraction.
+
+Version 1.0.1
+- Refactored code.
+
+Version 1.0
+- Initial version of NeuralNet Correlation Model with 2 second data window.
+- Trained Model with 10 moves for 5 users (Ryan, Luhua, Darren, Kyle, Adil).
+- Gyro Z sensor issues resolved with training data.
