@@ -1,3 +1,6 @@
+Version 1.0.5
+- Reduce confidence level to 90%.
+
 Version 1.0.4
 - Add debug output to show unsure move.
 

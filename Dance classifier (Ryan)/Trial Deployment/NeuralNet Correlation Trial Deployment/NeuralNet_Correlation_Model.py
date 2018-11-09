@@ -13,7 +13,7 @@ UNSURE_PREDICTION = "UNSURE"
 MAX_PREDICTION_ATTEMPTS = 3
 
 #Mininum confidence for the model to output a prediction. If this is not met, steps will be taken to make a good guess.
-CONFIDENCE_THRESHOLD = 0.95 
+CONFIDENCE_THRESHOLD = 0.90 
 
 SAMPLING_RATE = 50 #Sampling frequency in Hz
 WINDOW_DURATION = 2 #Duration of window in seconds
