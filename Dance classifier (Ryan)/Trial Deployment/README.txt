@@ -1,8 +1,11 @@
 IMPORTANT THINGS TO TAKE NOTE
 
 1. Sensors are to be read at 50Hz.
-2. Window Size is 3 seconds long - i.e. 150 datapoints. (With the exception of the 2 second model)
+2. Window Size is 2 seconds long - i.e. 100 datapoints. (With the exception of the 2 second model)
 3. POWER SENSOR DATA SHOULD NOT BE INCLUDED IN THE WINDOW FED TO THE MODEL.
+
+Difference between "Match" and "No Match"
+The only difference is that the one with "Match" will return a prediction the moment 2 consecutive moves are detected with above 75% confidence. This might have extra performance overhead.
 
 HOW TO USE
 
