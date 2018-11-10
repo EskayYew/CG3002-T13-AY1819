@@ -181,18 +181,17 @@ class Pi:
                 
                 if(self.buffer.getSize() == self.WINDOWSIZE):
                     print('Buffer Filled')
-                    action = 'IDLE_A'
-                    
-                    tempBuffer = self.buffer.get()
-                    feedingBuffer = []
-
-                    for i in range(0, self.WINDOWSIZE):
-                        feedingBuffer += tempBuffer[i]
-                    
                     currentTime = time.time()
                     if((currentTime - self.executionTime) >= self.FlushTime):
+                        action = 'IDLE_A'
+                        
+                        tempBuffer = self.buffer.get()
+                        feedingBuffer = []
+
+                        for i in range(0, self.WINDOWSIZE):
+                            feedingBuffer += tempBuffer[i]
+                        
                         action = self.processData(feedingBuffer)
-                        print(action)
                         
                         if self.movesSent >= 40:
                             if action == 'LOGOUT':
@@ -204,6 +203,7 @@ class Pi:
                             self.FlushTime = 1.0
                         elif action != 'IDLE_A' and action != 'LOGOUT':
                             self.client.sendMessage(action)
+                            print(action, 'sent')
                             self.movesSent += 1
                             self.FlushTime = 2.5
 

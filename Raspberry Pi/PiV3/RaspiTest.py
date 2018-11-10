@@ -58,7 +58,8 @@ class Pi:
         # Machine Learning
         self.model = DanceClassifierNN()
         self.executionTime = 0.0
-        self.FlushTime = 2.5
+        self.FlushTime = 2.0
+        self.flushFlag = False
         
         # Data Collection
         self.SENSOR_COUNT = 23
@@ -179,10 +180,16 @@ class Pi:
                 # Collect data
                 self.communicate()
                 
+                if self.flushFlag and (self.buffer.getSize() == 80):
+                    self.buffer.reset()
+                    self.flushFlag = False
+                    print('Buffer Flushed')
+                
                 if(self.buffer.getSize() == self.WINDOWSIZE):
+                    print('Process Data')
                     currentTime = time.time()
                     if((currentTime - self.executionTime) >= self.FlushTime):
-                        print('Process Data')
+                        
                         action = 'IDLE_A'
 
                         tempBuffer = self.buffer.get()
@@ -190,6 +197,7 @@ class Pi:
 
                         for i in range(0, self.WINDOWSIZE):
                             feedingBuffer += tempBuffer[i]
+                        
                         action = self.processData(feedingBuffer)
                         print(action)
                         
@@ -204,11 +212,12 @@ class Pi:
                         elif action != 'IDLE_A' and action != 'LOGOUT':
                             self.client.sendMessage(action)
                             self.movesSent += 1
-                            self.FlushTime = 2.5
+                            self.FlushTime = 2.0
+                            self.flushFlag = True
 
                         self.executionTime = currentTime
                         
-                        self.buffer.reset()
+                    self.buffer.reset()
                     
         except KeyboardInterrupt:
             print('Program End')
