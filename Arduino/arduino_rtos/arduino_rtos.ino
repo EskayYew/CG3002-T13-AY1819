@@ -2,6 +2,7 @@
 
 #include <Arduino_FreeRTOS.h>
 #include <semphr.h>
+#include <avr/power.h>
 
 #include "comms_protocol.h"
 #include "config.h"
@@ -12,8 +13,14 @@ extern "C" {
 #include "utility/twi.h"  // from Wire library, so we can do bus scanning
 }
 
-#define NUM_SAMPLES 20
+#define NUM_SAMPLES 10
 #define TCAADDR 0x70
+
+#define power_usart3_disable() (PRR1 |= (uint8_t)(1 << PRUSART3))
+
+////////////////////////////////////////////////////////
+//    FUNCTION PROTOTYPES                             //
+////////////////////////////////////////////////////////
 
 void TaskSendMessage(void *pvParameters);
 void TaskFormatMessage(void * pvParameters);
@@ -24,7 +31,7 @@ void transmit_data_from_buffer();
 void terminate_connection();
 void update_power_readings();
 
-void send_16bit(uint16_t data);
+void disable_unused_features();
 void tcaselect(uint8_t i);
 
 //////////////////////////////////////////////
@@ -32,7 +39,7 @@ void tcaselect(uint8_t i);
 //////////////////////////////////////////////
 
 // Constants for MPU Reading
-const int FLEXPIN = 3;
+const int FLEXPIN = 31;
 const int MPU = 0x68;
 
 // Constants for power reading
@@ -68,29 +75,28 @@ float energy = 0.0;                   // Calculated energy value
 float elapsedTime = 0.0;
 
 void setup() {
-  //Initialize mpu
+  //pinAsInput(FLEXPIN);
+  disable_unused_features();
   pinMode(FLEXPIN, INPUT);
+  //Initialize mpu
   Wire.begin();
+  Wire.setClock(400000);
   tcaselect(0);
   Wire.beginTransmission(MPU);
   Wire.write(0x6B); 
   Wire.write(0);    
   Wire.endTransmission(true);
-  tcaselect(1);
+  tcaselect(6);
   Wire.beginTransmission(MPU);
   Wire.write(0x6B); 
   Wire.write(0);    
   Wire.endTransmission(true);
-  tcaselect(2);
+  tcaselect(7);
   Wire.beginTransmission(MPU);
   Wire.write(0x6B); 
   Wire.write(0);    
   Wire.endTransmission(true);
-  tcaselect(3);
-  Wire.beginTransmission(MPU);
-  Wire.write(0x6B); 
-  Wire.write(0);    
-  Wire.endTransmission(true);
+
   // Initialize serial communication - 115200 bps,8 Data, 1 Stop, 0 Parity
   // Temporarily using Serial for debugging, will move over to Serial
   if (USB_DEBUG_MODE) {
@@ -133,6 +139,76 @@ void setup() {
 //////////////////////////////////////////////
 //    HELPER FUNCTIONS                      //
 //////////////////////////////////////////////
+
+
+/* 
+ * Disables unused features to optimize power
+ * Features disabled:
+ *  1. USART0 (if usb debug mode is disabled)
+ *  2. USART2
+ *  3. USART3
+ *  4. Timer5
+ *  5. Timer4
+ *  6. Timer3
+ *  7. Timer1
+ *  8. SPI
+ */
+void disable_unused_features() {
+  int i;
+  //Disable unused peripherals
+  if (!USB_DEBUG_MODE) {
+    power_usart0_disable();
+  }
+
+  power_usart2_disable();
+  power_usart3_disable();
+
+  power_timer5_disable();
+  power_timer4_disable();
+  power_timer3_disable();
+  power_timer1_disable();
+
+  power_spi_disable();
+
+  //Change all unused pins to OUTPUT LOW
+  for (i = 0; i <= 53; i++) {
+    if (i != FLEXPIN && i != 20 && i != 21) {
+      pinMode(i, OUTPUT);
+      digitalWrite(i, LOW);
+    } 
+  }
+
+  //Set all analog pins to OUTPUT LOW
+  pinMode(A2, OUTPUT);
+  pinMode(A3, OUTPUT);
+  pinMode(A4, OUTPUT);
+  pinMode(A5, OUTPUT);
+  pinMode(A6, OUTPUT);
+  pinMode(A7, OUTPUT);
+  pinMode(A8, OUTPUT);
+  pinMode(A9, OUTPUT);
+  pinMode(A10, OUTPUT);
+  pinMode(A11, OUTPUT);
+  pinMode(A12, OUTPUT);
+  pinMode(A13, OUTPUT);
+  pinMode(A14, OUTPUT);
+  pinMode(A15, OUTPUT);
+
+  digitalWrite(A2, LOW);
+  digitalWrite(A3, LOW);
+  digitalWrite(A4, LOW);
+  digitalWrite(A5, LOW);
+  digitalWrite(A6, LOW);
+  digitalWrite(A7, LOW);
+  digitalWrite(A8, LOW);
+  digitalWrite(A9, LOW);
+  digitalWrite(A10, LOW);
+  digitalWrite(A11, LOW);
+  digitalWrite(A12, LOW);
+  digitalWrite(A13, LOW);
+  digitalWrite(A14, LOW);
+  digitalWrite(A15, LOW);
+}
 
 /*
  * Select which channelt to read the data from
@@ -274,8 +350,8 @@ void update_power_readings() {
       // Vout = (4.875*sample)/1000
       // Actual battery voltage = (2*Vout)
       // Remap the ADC value into a voltage number
-      sensorValueA0 = (sensorValueA0 / (float)NUM_SAMPLES * 4.875) / 1024.0;
-      voltageOut = (sensorValueA1 / (float)NUM_SAMPLES * 4.875) / 1024.0;
+      sensorValueA0 = (sensorValueA0 / (float)NUM_SAMPLES * 5.4) / 1024.0;
+      voltageOut = (sensorValueA1 / (float)NUM_SAMPLES * 5.06) / 1024.0;
 
       // Calculate Vin from Vout and two resistor
       // Battery V = 5.224, Voltage across resistor = 2.608
@@ -290,10 +366,11 @@ void update_power_readings() {
       
       // Power value
       power = current * voltageIn;
+
+      elapsedTime = millis() / 1000.0;
       
       // Energy value
       if (power != 0) {
-        elapsedTime = millis() / 1000.0;
         energy = (power * elapsedTime) / 3600;
       }
 
@@ -321,16 +398,18 @@ void TaskSendMessage(void *pvParameters) {
   xLastWakeTime = xTaskGetTickCount();
   
   for(;;) {
+    long start_time = millis();
     if (!connection_established) {
       establish_connection();
       //transmit_data_from_buffer();
     } else {
       transmit_data_from_buffer();
-//      if (messages_sent >= RE_CONNECT_COUNT) {
-//        terminate_connection();
-//      }
     }
-
+    if (USB_DEBUG_MODE) {
+      long end_time = millis() - start_time;
+      Serial.print("Comms Time:");
+      Serial.println(end_time);
+    }
     //Sleep until next scheduled time
     vTaskDelayUntil(&xLastWakeTime, xDelay);
   }
@@ -341,21 +420,25 @@ void TaskReadData(void *pvParameters) {
   TickType_t xLastWakeTime;
   xLastWakeTime = xTaskGetTickCount();
   for(;;) {
+    long start_time = millis();
     update_power_readings();
     if ( xSemaphoreTake( xMsgBuffSemaphore, ( TickType_t ) 5 ) == pdTRUE ) {  
       uint8_t *current_msg_ptr =  msg_buffer.data_buffer[msg_buffer.bck];
       uint8_t checksum = 0;
       int16_t msg_buffer_index = 0;
+      // 0 - Main board, 6- left, 7 - right
       for (int i = 0; i < MPU_COUNT; i++) {
-        if (i == 2 ) {
-          tcaselect(3);
+        if (i == 1 ) {
+          tcaselect(6);
+        } else if (i == 2) {
+          tcaselect(7);
         } else {
           tcaselect(i);
         }
         Wire.beginTransmission(MPU);
         Wire.write(0x3B);  
         Wire.endTransmission(false);
-        Wire.requestFrom(MPU,12,true);  
+        Wire.requestFrom(MPU,14,true);  
 
         /* SENSOR IDs
          * j = 0 - 2 : AcX,Y,Z
@@ -383,6 +466,7 @@ void TaskReadData(void *pvParameters) {
         }
       // int16_t Flex = 27;
       int16_t Flex = digitalRead(FLEXPIN);
+      //int16_t Flex = digitalState(FLEXPIN);
       uint8_t lsb = (Flex & 0x00FF);
       uint8_t msb = (Flex & 0xFF00) >> 8;
       checksum ^= lsb;
@@ -411,6 +495,12 @@ void TaskReadData(void *pvParameters) {
         msg_buffer.bck = 0;
       }
       xSemaphoreGive( xMsgBuffSemaphore );
+    }
+
+    if (USB_DEBUG_MODE) {
+      long end_time = millis() - start_time;
+      Serial.print("Read Time:");
+      Serial.println(end_time);
     }
     vTaskDelayUntil(&xLastWakeTime, xDelay);
   }
