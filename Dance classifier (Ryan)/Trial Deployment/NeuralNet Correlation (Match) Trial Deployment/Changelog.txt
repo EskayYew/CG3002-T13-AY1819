@@ -1,3 +1,6 @@
+Version 1.2.6
+- Retrain model with original 1 second sliding window.
+
 Version 1.2.5
 - Retrain model with narrower sliding window.
 
