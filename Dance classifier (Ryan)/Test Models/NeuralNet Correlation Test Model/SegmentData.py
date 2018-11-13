@@ -3,7 +3,7 @@ import os
 
 SAMPLING_RATE = 50 #Sampling frequency in Hz
 WINDOW_DURATION = 2 #Duration of window in seconds
-SLIDING_WINDOW = 0.5 #Duration of sliding window in seconds
+SLIDING_WINDOW = 1 #Duration of sliding window in seconds
 RELEVANT_COLUMNS = 19 #Number of relevant columns in data
 
 POINTS_PER_WINDOW = WINDOW_DURATION * SAMPLING_RATE
@@ -19,7 +19,7 @@ def processFiles(folderDirectory):
         filepath = folderDirectory + "/" + file
         if (checkIfCSV(filepath)):
             convertedFile = makeListFromCSV(filepath, RELEVANT_COLUMNS)
-            segmentedData = segmentData(convertedFile, POINTS_PER_WINDOW, POINTS_PER_SLIDE) #Window size is 2 secs, sliding window is 0.5 sec.
+            segmentedData = segmentData(convertedFile, POINTS_PER_WINDOW, POINTS_PER_SLIDE) #Window size is 2 secs, sliding window is 1 sec.
 
             PROCESSED_DATA.extend(segmentedData)
 
