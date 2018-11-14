@@ -1,3 +1,7 @@
+Version 1.1.7
+- Retrain model with new turnclap data for SK and Luhua.
+- Add Adil's logout move.
+
 Version 1.1.6
 - Retrain model with original 1 second sliding window.
 
