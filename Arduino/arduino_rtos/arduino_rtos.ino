@@ -73,6 +73,8 @@ float current = 0.0;                  // Calculated current value
 float power = 0.0;                    // Calculated power value
 float energy = 0.0;                   // Calculated energy value
 float elapsedTime = 0.0;
+unsigned long prevTime = 0;
+unsigned long currTime = 0;
 
 void setup() {
   //pinAsInput(FLEXPIN);
@@ -366,20 +368,24 @@ void update_power_readings() {
       
       // Power value
       power = current * voltageIn;
-
-      elapsedTime = millis() / 1000.0;
       
       // Energy value
       if (power != 0) {
-        energy = (power * elapsedTime) / 3600;
+        currTime = millis();
+        elapsedTime = (currTime - prevTime) / 3600000.0;
+        prevTime = currTime;
+        energy = energy + (power * elapsedTime);
       }
 
       power_data[0] = voltageIn * 100;
       power_data[1] = current * 100;
       power_data[2] = power * 100;
       power_data[3] = energy * 1000;
-
-
+      if (USB_DEBUG_MODE) {
+        Serial.print("energy: ");
+        Serial.println(energy);
+      }
+        
       sample_count = 0;
       sensorValueA0 = 0;
       sensorValueA1 = 0;
