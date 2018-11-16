@@ -1,12 +1,14 @@
-# Steps to run file in folder
+# Server Deployment
 
-# Installation
+## Steps to run file in folder
+
+## Installation
 
 Install the following files on your computer:
 
 pip install pycryptodome
 
-# Execution
+## Execution
 
 Change directory using window terminal to enter Server folder in FinalDeployment folder
 
