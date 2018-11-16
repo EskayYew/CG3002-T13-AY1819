@@ -53,17 +53,19 @@ The data collected can then be used to train the ML model.
 
 Contains all software files that is needed to be uploaded onto a computer so as to host an evaluation server for the dance detection system.
 
-## Installation
+## Installation Instructions for Raspberry Pi
 
 ### Setting up of Raspberry Pi (installation of Raspbian OS GNU/LINUX 9 via NOOBS)
 Reference from:
+
 https://learn.adafruit.com/setting-up-a-raspberry-pi-with-noobs/overview
+
 https://www.youtube.com/watch?v=4z9trGhCbfk
 
 1. Download NOOBS version 282 from: http://www.raspberrypi.org/downloads.
-Then, download SD CARD formatter from: https://www.sdcard.org/downloads/formatter_4/
 
-2. Format SD CARD via Full Overwrite and Quick Erase through the software application.
+2. Download SD CARD formatter from: https://www.sdcard.org/downloads/formatter_4/.
+Format SD CARD via Full Overwrite and Quick Erase through the software application.
 
 3. Drag files from extracted zip folder of NOOBS 282 into SD CARD.
 
@@ -79,6 +81,7 @@ Then, download SD CARD formatter from: https://www.sdcard.org/downloads/formatte
 
 ### Setting up SSH for raspberry pi
 Reference from:
+
 https://learn.adafruit.com/adafruits-raspberry-pi-lesson-6-using-ssh
 
 1. Open raspberry terminal, and type ‘sudo raspi-config’.
@@ -93,6 +96,7 @@ https://learn.adafruit.com/adafruits-raspberry-pi-lesson-6-using-ssh
 
 ### Setting up VNC viewer for raspberry pi
 Reference from: 
+
 https://learn.adafruit.com/adafruit-raspberry-pi-lesson-7-remote-control-with-vnc/overview
 
 1. Open raspberry terminal, type ‘sudo apt-get update’ then ‘sudo apt-get install tightvncserver’.
