@@ -1,5 +1,9 @@
 # Final Deployment Folder
 
+CG3002-T13-AY1819
+
+This folder contains the files needed for the overall deployment of the dance detection system.
+
 Intructions for installation of Operating System on Raspberry Pi can be found at the bottom of this README.
 
 ## Folders needed for dance detection system execution:
