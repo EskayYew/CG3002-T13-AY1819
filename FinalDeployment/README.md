@@ -57,6 +57,14 @@ The data collected can then be used to train the ML model.
 
 Contains all software files that is needed to be uploaded onto a computer so as to host an evaluation server for the dance detection system.
 
+## NeuralNet Training & Validation Folder
+
+Contains all files needed to train the NeuralNet and perform cross validation. Instructions can be found in the README within that folder.
+
+## NeuralNet Test Environment Folder
+
+Contains all files needed to test the NeuralNet on recorded "unseen" data. Instructions can be found in the README within that folder.
+
 ## Installation Instructions for Raspberry Pi
 
 ### Setting up of Raspberry Pi (installation of Raspbian OS GNU/LINUX 9 via NOOBS)
