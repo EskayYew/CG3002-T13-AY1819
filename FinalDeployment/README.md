@@ -1,6 +1,6 @@
 # Final Deployment Folder
 
-# Pi Deployment Folder
+## Pi Deployment Folder
 
 Contains installation instructions and all software files
 that needs to be on the Pi, in order for the software
@@ -15,7 +15,7 @@ Processing of data and prediction of move
 Sending of predicted move to server 
 
 
-# Arduino Deployment Folder
+## Arduino Deployment Folder
 
 Contains all software files that needs to be uploaded on to the Arduino, in order for
 the Arduino to receive data from sensors and send data from Arduino to Pi. 
