@@ -38,7 +38,7 @@ Where rs = random shuffle cv, Any positive integer, N = K-Fold CV, where K will 
 
 4a. You can control how much data to restrict by changing the "test_size" variable in the following line:
 
-rs = ShuffleSplit(n_splits=30, random_state=None, test_size=0.4)
+rs = ShuffleSplit(n_splits=30, random_state=None, test_size=0.25)
 
 Where "test_size" takes in a float between 0.0 and 1.0.
 
