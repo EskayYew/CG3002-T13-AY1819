@@ -1,7 +1,7 @@
 # CG3002-T13-AY1819-Main
 
 # Main Folder
-## Final Deployment Folder
+## FinalDeployment
 
 This folder contains the main files needed for the overall deployment of the dance detection system. Each folder contains instructions to install the relevant packages and run the files needed for the different components of the system.
 
