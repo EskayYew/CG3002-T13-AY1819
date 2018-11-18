@@ -73,6 +73,8 @@ float current = 0.0;                  // Calculated current value
 float power = 0.0;                    // Calculated power value
 float energy = 0.0;                   // Calculated energy value
 float elapsedTime = 0.0;
+unsigned long prevTime = 0;
+unsigned long currTime = 0;
 
 void setup() {
   //pinAsInput(FLEXPIN);
@@ -98,10 +100,6 @@ void setup() {
   Wire.endTransmission(true);
 
   // Initialize serial communication - 115200 bps,8 Data, 1 Stop, 0 Parity
-  // Temporarily using Serial for debugging, will move over to Serial
-  if (USB_DEBUG_MODE) {
-    Serial.begin(115200, SERIAL_8N1);
-  }
   Serial1.begin(115200, SERIAL_8N1);
 
   /*
@@ -229,9 +227,6 @@ void establish_connection() {
   unsigned long start_time = 0;
   unsigned long current_time = 0;
   Serial1.write(SYNC);
-//  if (USB_DEBUG_MODE) {
-//    Serial.println("SENT SYNC");
-//  }
 
   start_time = millis();
   while (received_byte != ACK) {
@@ -240,9 +235,6 @@ void establish_connection() {
       current_time = millis();
       if (current_time - start_time >= 2000) {
         Serial1.write(SYNC);
-        if (USB_DEBUG_MODE) {
-          Serial.println("SENT SYNC");
-        }
         start_time = millis();       
       }
     };
@@ -251,9 +243,6 @@ void establish_connection() {
   }
   Serial1.write(SYNC_ACK);
   connection_established = true;
-  if (USB_DEBUG_MODE) {
-    Serial.println("CONNECTION ESTABLISHED");
-  }
 
   //Flush buffer
    if ( xSemaphoreTake( xMsgBuffSemaphore, ( TickType_t ) 5 ) == pdTRUE ) { 
@@ -279,17 +268,11 @@ void transmit_data_from_buffer() {
       while (received_byte != CHK) {
         //Transmit data
         Serial1.write(current_msg_ptr, MSG_LEN);
-        if (USB_DEBUG_MODE) {
-          Serial.println("MESSAGED SENT");
-        } 
         // Wait for response from RPi
         start_time = millis();
         while(!Serial1.available()) {
           current_time = millis();
           if (current_time - start_time >= 2000) {
-            if (USB_DEBUG_MODE) {
-              Serial.println("CONNECTION LOST");
-            } 
             connection_established = false;
             received_byte = NONE;
             xSemaphoreGive( xMsgBuffSemaphore );
@@ -297,9 +280,6 @@ void transmit_data_from_buffer() {
           }
         };
         received_byte = Serial1.read();
-      }
-      if (USB_DEBUG_MODE) {
-        Serial.println("MESSAGED ACK");
       }
       //update buffer state and allow current data to be overwritten
       msg_buffer.buff_size_remaining++;
@@ -310,29 +290,6 @@ void transmit_data_from_buffer() {
       xSemaphoreGive( xMsgBuffSemaphore );
     }
   }
-}
-
-/* 
-* Terminate communication with RPi
-*/
-void terminate_connection(){
-  uint8_t received_byte = NONE;
-  Serial1.write(FIN);
-  if (USB_DEBUG_MODE) {
-    Serial.println("REQUEST TERMINATION");
-  }
-  while (received_byte != FIN) {
-    // Wait until response received from RPi
-    // TODO - add time out
-    while(!Serial1.available()) {};
-    received_byte = Serial1.read();
-  }
-  Serial1.write(ACK);
-  if (USB_DEBUG_MODE) {
-    Serial.println("CONNECTION ENDED");
-  }
-  received_byte = NONE;
-  connection_established = false;
 }
 
 /*
@@ -350,8 +307,8 @@ void update_power_readings() {
       // Vout = (4.875*sample)/1000
       // Actual battery voltage = (2*Vout)
       // Remap the ADC value into a voltage number
-      sensorValueA0 = (sensorValueA0 / (float)NUM_SAMPLES * 5.4) / 1024.0;
-      voltageOut = (sensorValueA1 / (float)NUM_SAMPLES * 5.06) / 1024.0;
+      sensorValueA0 = (sensorValueA0 / (float)NUM_SAMPLES * 5.1) / 1024.0;
+      voltageOut = (sensorValueA1 / (float)NUM_SAMPLES * 5.08) / 1024.0;
 
       // Calculate Vin from Vout and two resistor
       // Battery V = 5.224, Voltage across resistor = 2.608
@@ -367,11 +324,15 @@ void update_power_readings() {
       // Power value
       power = current * voltageIn;
 
-      elapsedTime = millis() / 1000.0;
+      //elapsedTime = millis() / 1000.0;
       
       // Energy value
       if (power != 0) {
-        energy = (power * elapsedTime) / 3600;
+        currTime = millis();
+        elapsedTime = (currTime - prevTime) / 3600000.0;
+        prevTime = currTime;
+        energy = energy + (power * elapsedTime);
+        //energy = (power * elapsedTime) / 3600;
       }
 
       power_data[0] = voltageIn * 100;
@@ -404,11 +365,6 @@ void TaskSendMessage(void *pvParameters) {
       //transmit_data_from_buffer();
     } else {
       transmit_data_from_buffer();
-    }
-    if (USB_DEBUG_MODE) {
-      long end_time = millis() - start_time;
-      Serial.print("Comms Time:");
-      Serial.println(end_time);
     }
     //Sleep until next scheduled time
     vTaskDelayUntil(&xLastWakeTime, xDelay);
@@ -446,7 +402,6 @@ void TaskReadData(void *pvParameters) {
          * j = 4 - 6 : GyX,Y,Z
          */
           for (int j = 0; j < SENSOR_PER_MPU; j++) {
-            // int16_t data = j + 1;
             int16_t data = Wire.read()<<8|Wire.read();
             if (j != 3) {
               if (j <= 2) {
@@ -464,9 +419,7 @@ void TaskReadData(void *pvParameters) {
             }
           }
         }
-      // int16_t Flex = 27;
       int16_t Flex = digitalRead(FLEXPIN);
-      //int16_t Flex = digitalState(FLEXPIN);
       uint8_t lsb = (Flex & 0x00FF);
       uint8_t msb = (Flex & 0xFF00) >> 8;
       checksum ^= lsb;
@@ -497,11 +450,6 @@ void TaskReadData(void *pvParameters) {
       xSemaphoreGive( xMsgBuffSemaphore );
     }
 
-    if (USB_DEBUG_MODE) {
-      long end_time = millis() - start_time;
-      Serial.print("Read Time:");
-      Serial.println(end_time);
-    }
     vTaskDelayUntil(&xLastWakeTime, xDelay);
   }
 }
