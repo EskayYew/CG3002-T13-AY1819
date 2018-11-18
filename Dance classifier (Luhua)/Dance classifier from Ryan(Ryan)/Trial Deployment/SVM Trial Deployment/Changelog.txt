@@ -1,0 +1,20 @@
+Version 1.0.1
+- Changed model to output a STRING.
+
+Version 1.0
+- Added training data for all 10 moves. (NOTE: 3 Z-AXIS gyroscopes appear to be omitted)
+- Rename predictions. Refer to README.
+
+Version 0.8
+- Added new feature - number of zero crossings.
+
+Version 0.7
+- Revamped training method for model.
+- Prediction times may be quicker - UNCONFIRMED.
+
+Version 0.6
+- Minor update on SVM model. SHOULD HAVE NO EFFECT ON PERFORMANCE.
+
+Version 0.5
+- Initial tracking of deployment models.
+- Contains basic training data of 5 people for the first 5 moves (Chicken, Number 7, Sidestep, Turnclap, Wipers) and Idle move.

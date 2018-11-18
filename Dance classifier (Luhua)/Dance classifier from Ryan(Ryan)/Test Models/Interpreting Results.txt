@@ -1,0 +1,15 @@
+Precision = TP / (TP + FP)
+
+Recall = TP / (TP + FN)
+
+
+
+TP = True Positive
+
+FP = False Positive
+
+FN = False Negative
+
+Precision can be obtained by vertical columns along confusion matrix.
+
+Recall can be obtained by horizontal rows along confusion matrix.

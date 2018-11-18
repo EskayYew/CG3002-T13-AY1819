@@ -15,9 +15,10 @@ class Receiver(threading.Thread):
     def __init__(self, bufferX):
         threading.Thread.__init__(self)
         
-        self.SENSOR_COUNT = 29
-        self.energy = 0.00
+        self.SENSOR_COUNT = 23
+        self.energy = 0.000
         self.buffer = bufferX
+        self.connection_established = False
         # Setup serial port
         self.ser = serial.Serial(            
             #port = 'COM5',
@@ -31,8 +32,8 @@ class Receiver(threading.Thread):
         self.ser.flushInput()
         self.ser.flushOutput()
 
-        # self.ser.reset_input_buffer()
-        # self.ser.reset_output_buffer()
+        self.ser.reset_input_buffer()
+        self.ser.reset_output_buffer()
         
         self.data_buff = []
         self.byteArray = []
@@ -52,70 +53,98 @@ class Receiver(threading.Thread):
             combinedValue = int.from_bytes(byte2 + byte1, byteorder="big", signed=True)
             #checksum = combinedValue ^ checksum
             
+            if counter >= 19 and counter <= 21:
+                combinedValue /= 100
+            if counter == 22:
+                combinedValue /= 1000
+            
             newArray.append(combinedValue)
 
-        self.energy += newArray[28]
+        self.energy += newArray[22]
 
-        newArray.append(self.energy)
+        newArray[22] = self.energy
         
         chkPos = chkPos*2
 
+        arrayChecksum = (int.from_bytes(bArray[chkPos] , byteorder="big", signed=True))
         # checksum is at 50th position of bArray
         # if checksum matches, then data is clean and ready to be stored into circular buffer
-        if (checksum == (int.from_bytes(bArray[chkPos] , byteorder="big", signed=True))):            
-            self.ser.write(b'1')
-            print("success")
+        if (checksum == arrayChecksum):            
+            self.ser.write(b'C')
             return newArray
         else:
-            self.ser.write(b'6')
+            self.ser.write(b'N')
             print("Checksum error")
-            print(self.byteArray)
+            print(bArray)
             print(newArray)
+            print(checksum)
+            print(arrayChecksum)
+            
             return None
-
-    def communicate(self):
-
+    
+    def establish_connection(self):
         # Wait for SYNC packet
-        while(self.ser.read() != b'\x00'):
+        while(self.ser.read() != b'S'):
             pass
-        self.ser.write(b'1')
+        self.ser.write(b'A')
         # Wait for SYNC-ACK packet
-        while(self.ser.read() != b'\x02'):
+        while(self.ser.read() != b'H'):
             pass
-
-        #print("Starting data tranfser...")
-        # handshake established with handshake flag
-
+        #self.ser.reset_input_buffer()
+        #self.ser.reset_output_buffer()
+        self.connection_established = True
+        print("Connection Established")
+    
+    def read_data(self):
         #will be receiving 52 array bytes, 0 to 51
-        while (len(self.byteArray) < 59):
+        while (len(self.byteArray) < 47):
+            startTime = time.time()
+            while(self.ser.in_waiting == 0):
+                currentTime = time.time()
+                if (currentTime - startTime >= 2.0):
+                    self.byteArray = []
+                    self.data_buff = []
+                    self.connection_established = False
+                    #self.ser.reset_input_buffer()
+                    #self.ser.reset_output_buffer()
+                    print('termination')
+                    return
+                
             rcv = self.ser.read()
-            if (rcv != b'\r' and rcv != b'\n'):
-                self.byteArray.append(rcv)
+            self.byteArray.append(rcv)
+        #    if (rcv != b'\r' and rcv != b'\n'):
+        #        self.byteArray.append(rcv)
+                
+                
         self.data_buff = self.checkByteArray(self.byteArray)
         
         if(self.data_buff is not None):
             processLock.acquire()
             self.buffer.append(self.data_buff)
             processLock.release()
+            
+        if(self.buffer.getSize() % 25 == 0):
+            print(self.buffer.getSize())
 
-        # Wait for FIN packet
-        while(self.ser.read() != b'\x07'):
-            pass
-        self.ser.write(b'7')
-        while(self.ser.read() != b'\x01'):
-            pass
-
-        if(self.buffer.getSize() == 500):
-            print('buffer full')        
-
+        #self.ser.reset_input_buffer()
         self.byteArray = []
         self.data_buff = []
+           
+    def communicate(self):
+        if not self.connection_established:
+            self.establish_connection()
+            #self.read_data()
+        else:
+            self.read_data()
+        #print("Starting data tranfser...")
+        # handshake established with handshake flag
 
     def receiveLoop(self):
         # newTime = time.time() + 5
-        self.communicate()
+        while True:
+            self.communicate()
         # threading.Timer(newTime - time.time(), self.printSelf).start()
-        threading.Timer(0.02, self.receiveLoop).start()
+        #threading.Timer(0.02, self.receiveLoop).start()
 
     def run(self):
         self.receiveLoop()
@@ -124,7 +153,7 @@ class Pi:
     def __init__(self):
         self.dataList = [0, 0, 0, 0]
         self.threads = []
-        self.buffer = CircleBuffer(500)
+        self.buffer = CircleBuffer(750)
 
     def main(self):
         try:
@@ -145,7 +174,6 @@ class Pi:
         except KeyboardInterrupt:
             file = str(sys.argv[1])
             databuffer = self.buffer.get()
-            print(databuffer)
             myFile = open(file, 'w', newline='')
             with myFile:
                 writer = csv.writer(myFile)
