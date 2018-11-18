@@ -1,5 +1,8 @@
 # CG3002-T13-AY1819-Main
 
+# Overview
+An embedded system wearable that detects the movements of its user and uses machine learning software and hardware sensor data to determine the correct dance movements made with the help of communication protocols to send sensor data from arduino to RPi and detected movements from RPi to an evaluation server.
+
 # Main Folder
 ## FinalDeployment
 
