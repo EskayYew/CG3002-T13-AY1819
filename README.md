@@ -3,7 +3,7 @@
 # Main Folder
 ## FinalDeployment
 
-This folder contains the main files needed for the overall deployment of the dance detection system. Each folder contains instructions to install the relevant packages and run the files needed for the different components of the system.
+This folder contains the main files needed for the overall deployment of the dance detection system. Each folder inside **FinalDeployment** contains instructions to install the relevant packages and run the files needed for the different components of the system.
 
 ## Key Deadlines
 
