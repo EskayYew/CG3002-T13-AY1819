@@ -1,5 +1,5 @@
 #include "Time.h"
-#define NUM_SAMPLES 20
+#define NUM_SAMPLES 10
 
 // Constants
 const int SENSOR_PIN_A0 = A0;   // Input pin for measuring Vout from INA169
@@ -23,6 +23,8 @@ float power = 0.0;                    // Calculated power value
 float lastPower = 0.0;                // Previous power value
 float energy = 0.0;                   // Calculated energy value
 float elapsedTime = 0.0;
+unsigned long prevTime = 0;
+unsigned long currTime = 0;
 
 void printDigits(int digits) {
   // utility function for digital clock display: prints preceding colon and leading 0
@@ -38,8 +40,6 @@ void setup() {
 }
 
 void loop() {
-  elapsedTime = millis() / 1000.0;
-  
   // Read analog value
   // take a number of analog samples and add them up
   while (sample_count < NUM_SAMPLES) {
@@ -55,8 +55,8 @@ void loop() {
   // Vout = (4.875*sample)/1000
   // Actual battery voltage = (2*Vout)
   // Remap the ADC value into a voltage number
-  sensorValueA0 = (sensorValueA0 / (float)NUM_SAMPLES * 4.875) / 1024.0;
-  voltageOut = (sensorValueA1 / (float)NUM_SAMPLES * 4.875) / 1024.0;
+  sensorValueA0 = (sensorValueA0 / (float)NUM_SAMPLES * 5.2) / 1024.0;
+  voltageOut = (sensorValueA1 / (float)NUM_SAMPLES * 4.975) / 1024.0;
 
   // Calculate Vin from Vout and two resistor
   // Battery V = 5.224, Voltage across resistor = 2.608
@@ -77,7 +77,10 @@ void loop() {
   
   // Energy value
   if (power != 0) {
-  energy = (power * elapsedTime) / 3600;
+  currTime = millis();
+  elapsedTime = (currTime - prevTime) / 3600000.0;
+  prevTime = currTime;
+  energy = energy + (power * elapsedTime) * 1000;
   }
   
   // Output value (in amps/watts/voltage/joules) to the serial monitor to 2 decimal
