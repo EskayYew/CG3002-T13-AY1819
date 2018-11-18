@@ -142,7 +142,7 @@ void setup() {
 /* 
  * Disables unused features to optimize power
  * Features disabled:
- *  1. USART0 (if usb debug mode is disabled)
+ *  1. USART0
  *  2. USART2
  *  3. USART3
  *  4. Timer5
@@ -154,10 +154,7 @@ void setup() {
 void disable_unused_features() {
   int i;
   //Disable unused peripherals
-  if (!USB_DEBUG_MODE) {
-    power_usart0_disable();
-  }
-
+  power_usart0_disable();
   power_usart2_disable();
   power_usart3_disable();
 
@@ -209,7 +206,7 @@ void disable_unused_features() {
 }
 
 /*
- * Select which channelt to read the data from
+ * Select which channel to read the data from
  */
 void tcaselect(uint8_t i) {
   if (i > 7) return;
@@ -324,7 +321,6 @@ void update_power_readings() {
       // Power value
       power = current * voltageIn;
 
-      //elapsedTime = millis() / 1000.0;
       
       // Energy value
       if (power != 0) {
@@ -332,7 +328,6 @@ void update_power_readings() {
         elapsedTime = (currTime - prevTime) / 3600000.0;
         prevTime = currTime;
         energy = energy + (power * elapsedTime);
-        //energy = (power * elapsedTime) / 3600;
       }
 
       power_data[0] = voltageIn * 100;
