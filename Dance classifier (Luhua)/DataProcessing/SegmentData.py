@@ -12,7 +12,8 @@ def segment_data(array, segment_size, window_size):
         if actual_window_size < segment_size:
             break
 
-        result = ExtractFeatures.extract_features(window)
+        result = extract_features(window)
         segmented_data.append(result)
 
     return segmented_data
+

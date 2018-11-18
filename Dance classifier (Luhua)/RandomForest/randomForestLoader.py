@@ -10,14 +10,14 @@ class RandomForestModel:
     def predict(self, window):
         data = np.array(window)
 
-        if len(data) != 150:
+        if len(data) != 100:
             print("ERROR: Window size does not match!")
-            print("Expected window size is " + str(150) + ". Input size: " + str(len(data)))
+            print("Expected window size is " + str(100) + ". Input size: " + str(len(data)))
             return None
 
         data_1 = self.extract_features(data[0:48])
-        data_2 = self.extract_features(data[48:96])
-        data_3 = self.extract_features(data[96:144])
+        data_2 = self.extract_features(data[24:72])
+        data_3 = self.extract_features(data[48:96])
         result_1 = self.model.predict(data_1)
         result_2 = self.model.predict(data_2)
         result_3 = self.model.predict(data_3)

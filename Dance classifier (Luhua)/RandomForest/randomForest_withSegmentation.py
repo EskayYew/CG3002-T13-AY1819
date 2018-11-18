@@ -60,8 +60,8 @@ rdf = RandomForestClassifier()
 whole_data = []
 whole_test = []
 
-segment_size = 48
-window_size = 16
+segment_size = 100
+window_size = 50
 
 # bigger segment, much higher accuracy
 # bigger window, less accuracy: wrong, 30 is the smallest
@@ -78,82 +78,82 @@ for i in range(0, 91):
 
 whole_data = [whole_data]
 
-for filename in glob.iglob('../../ClassifiedTrainingSet/Wipers/*.csv', recursive=True):
+for filename in glob.iglob('../../ClassifiedTrainingSet_5moves/Wipers/*.csv', recursive=True):
     train_data = minmax_scale(pd.read_csv(filename).values)
     segmentedData = segment_data(train_data, segment_size, window_size)
     for row in segmentedData:
         whole_data = np.append(whole_data, [np.append(row, 'Wipers')], axis=0)
 
-for filename in glob.iglob('../../ClassifiedTrainingSet/Sidestep/*.csv', recursive=True):
+for filename in glob.iglob('../../ClassifiedTrainingSet_5moves/Sidestep/*.csv', recursive=True):
     train_data = minmax_scale(pd.read_csv(filename).values)
     segmentedData = segment_data(train_data, segment_size, window_size)
 
     for row in segmentedData:
         whole_data = np.append(whole_data, [np.append(row, 'Sidestep')], axis=0)
 
-for filename in glob.iglob('../../ClassifiedTrainingSet/Chicken/*.csv', recursive=True):
+for filename in glob.iglob('../../ClassifiedTrainingSet_5moves/Chicken/*.csv', recursive=True):
     train_data = minmax_scale(pd.read_csv(filename).values)
     segmentedData = segment_data(train_data, segment_size, window_size)
 
     for row in segmentedData:
         whole_data = np.append(whole_data, [np.append(row, 'Chicken')], axis=0)
 
-for filename in glob.iglob('../../ClassifiedTrainingSet/Number7/*.csv', recursive=True):
+for filename in glob.iglob('../../ClassifiedTrainingSet_5moves/Number7/*.csv', recursive=True):
     train_data = minmax_scale(pd.read_csv(filename).values)
     segmentedData = segment_data(train_data, segment_size, window_size)
 
     for row in segmentedData:
         whole_data = np.append(whole_data, [np.append(row, 'Number7')], axis=0)
 
-for filename in glob.iglob('../../ClassifiedTrainingSet/Idle/*.csv', recursive=True):
+for filename in glob.iglob('../../ClassifiedTrainingSet_5moves/Idle/*.csv', recursive=True):
     train_data = minmax_scale(pd.read_csv(filename).values)
     segmentedData = segment_data(train_data, segment_size, window_size)
 
     for row in segmentedData:
         whole_data = np.append(whole_data, [np.append(row, 'Idle')], axis=0)
 
-for filename in glob.iglob('../../ClassifiedTrainingSet/Turnclap/*.csv', recursive=True):
+for filename in glob.iglob('../../ClassifiedTrainingSet_5moves/Turnclap/*.csv', recursive=True):
     train_data = minmax_scale(pd.read_csv(filename).values)
     segmentedData = segment_data(train_data, segment_size, window_size)
 
     for row in segmentedData:
         whole_data = np.append(whole_data, [np.append(row, 'Turnclap')], axis=0)
 
-for filename in glob.iglob('../../ClassifiedTrainingSet/Cowboy/*.csv', recursive=True):
+for filename in glob.iglob('../../ClassifiedTrainingSet_5moves/Cowboy/*.csv', recursive=True):
     train_data = minmax_scale(pd.read_csv(filename).values)
     segmentedData = segment_data(train_data, segment_size, window_size)
     for row in segmentedData:
         whole_data = np.append(whole_data, [np.append(row, 'Cowboy')], axis=0)
 
-for filename in glob.iglob('../../ClassifiedTrainingSet/Mermaid/*.csv', recursive=True):
+for filename in glob.iglob('../../ClassifiedTrainingSet_5moves/Mermaid/*.csv', recursive=True):
     train_data = minmax_scale(pd.read_csv(filename).values)
     segmentedData = segment_data(train_data, segment_size, window_size)
 
     for row in segmentedData:
         whole_data = np.append(whole_data, [np.append(row, 'Mermaid')], axis=0)
 
-for filename in glob.iglob('../../ClassifiedTrainingSet/Number6/*.csv', recursive=True):
+for filename in glob.iglob('../../ClassifiedTrainingSet_5moves/Number6/*.csv', recursive=True):
     train_data = minmax_scale(pd.read_csv(filename).values)
     segmentedData = segment_data(train_data, segment_size, window_size)
 
     for row in segmentedData:
         whole_data = np.append(whole_data, [np.append(row, 'Number6')], axis=0)
 
-for filename in glob.iglob('../../ClassifiedTrainingSet/Salute/*.csv', recursive=True):
+for filename in glob.iglob('../../ClassifiedTrainingSet_5moves/Salute/*.csv', recursive=True):
     train_data = minmax_scale(pd.read_csv(filename).values)
     segmentedData = segment_data(train_data, segment_size, window_size)
 
     for row in segmentedData:
         whole_data = np.append(whole_data, [np.append(row, 'Salute')], axis=0)
 
-for filename in glob.iglob('../../ClassifiedTrainingSet/Idle/*.csv', recursive=True):
+for filename in glob.iglob('../../ClassifiedTrainingSet_5moves/Idle/*.csv', recursive=True):
     train_data = minmax_scale(pd.read_csv(filename).values)
     segmentedData = segment_data(train_data, segment_size, window_size)
 
     for row in segmentedData:
         whole_data = np.append(whole_data, [np.append(row, 'Idle')], axis=0)
 
-for filename in glob.iglob('../../ClassifiedTrainingSet/Swing/*.csv', recursive=True):
+for filename in glob.iglob('../../ClassifiedTrainingSet_5moves/Swing/*.csv', recursive=True):
     train_data = minmax_scale(pd.read_csv(filename).values)
     segmentedData = segment_data(train_data, segment_size, window_size)
 
@@ -163,7 +163,7 @@ for filename in glob.iglob('../../ClassifiedTrainingSet/Swing/*.csv', recursive=
 
 # # Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test
 #
-# for filename in glob.iglob('ClassifiedTrainingSet 1/Squatting/UnseenTest/**/*.csv', recursive=True):
+# for filename in glob.iglob('ClassifiedTrainingSet_5moves/Squatting/UnseenTest/**/*.csv', recursive=True):
 #     test_data = pd.read_csv(filename).values
 #     segmentedData = segment_data(test_data, segment_size, window_size)
 #
@@ -172,7 +172,7 @@ for filename in glob.iglob('../../ClassifiedTrainingSet/Swing/*.csv', recursive=
 #
 # # print(whole_data)
 #
-# for filename in glob.iglob('ClassifiedTrainingSet 1/Walking/UnseenTest/**/*.csv', recursive=True):
+# for filename in glob.iglob('ClassifiedTrainingSet_5moves/Walking/UnseenTest/**/*.csv', recursive=True):
 #     test_data = pd.read_csv(filename).values
 #     segmentedData = segment_data(test_data, segment_size, window_size)
 #
@@ -180,7 +180,7 @@ for filename in glob.iglob('../../ClassifiedTrainingSet/Swing/*.csv', recursive=
 #         whole_test = np.append(whole_test, [np.append(row, 2)], axis=0)
 #
 # # print(whole_data)
-# for filename in glob.iglob('ClassifiedTrainingSet 1/Waving/UnseenTest/**/*.csv', recursive=True):
+# for filename in glob.iglob('ClassifiedTrainingSet_5moves/Waving/UnseenTest/**/*.csv', recursive=True):
 #     test_data = pd.read_csv(filename).values
 #     segmentedData = segment_data(test_data, segment_size, window_size)
 #
